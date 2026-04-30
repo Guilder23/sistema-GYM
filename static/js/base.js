@@ -1,5 +1,16 @@
 // Funciones JavaScript para la interfaz
 
+function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+}
+
+function toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+    const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    applyTheme(nextTheme);
+}
+
 function toggleSidebar() {
     const sidebar = document.querySelector('.sidebar');
     sidebar.classList.toggle('collapsed');
@@ -32,6 +43,11 @@ document.querySelectorAll('.alert .close').forEach(btn => {
         this.closest('.alert').remove();
     });
 });
+
+const themeToggleBtn = document.getElementById('themeToggle');
+if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', toggleTheme);
+}
 
 // Auto cerrar alertas después de 5 segundos
 setTimeout(() => {
