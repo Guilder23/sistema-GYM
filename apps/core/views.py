@@ -226,6 +226,11 @@ def user_create(request):
                 current_user_id=user.id,
             )
             profile.save()
+            
+            # Handle photo upload
+            if request.FILES.get('profile_photo'):
+                profile.profile_photo = request.FILES.get('profile_photo')
+                profile.save()
         except Exception as exc:
             user.delete()
             messages.error(request, str(exc))
@@ -279,6 +284,10 @@ def user_edit(request, user_id):
                 current_user_id=managed_user.id,
             )
             managed_user.save()
+            
+            if request.FILES.get('profile_photo'):
+                profile.profile_photo = request.FILES.get('profile_photo')
+                
             profile.save()
         except Exception as exc:
             messages.error(request, str(exc))
@@ -302,20 +311,59 @@ def user_edit(request, user_id):
     })
 
 
-@role_required(UserProfile.ROLE_CLIENT)
+@role_required(UserProfile.ROLE_ADMIN, UserProfile.ROLE_RECEPTION, UserProfile.ROLE_TRAINER, UserProfile.ROLE_CLIENT)
 def my_profile(request):
-    client = get_linked_client(request.user)
-    if not client:
-        messages.error(request, 'No tienes un perfil de cliente vinculado.')
-        return redirect('dashboard')
-    memberships = client.memberships.order_by('-start_date')
-    payments = client.payments.order_by('-date')
-    physical_history = client.physical_history.order_by('-date')
-    return render(request, 'core/client_profile.html', {
-        'client': client,
-        'memberships': memberships,
-        'payments': payments,
-        'physical_history': physical_history,
+    role = get_user_role(request.user)
+    profile = get_user_profile(request.user)
+    
+    if request.method == 'POST':
+        # Update common user info
+        request.user.first_name = request.POST.get('first_name', '').strip()
+        request.user.last_name = request.POST.get('last_name', '').strip()
+        request.user.email = request.POST.get('email', '').strip()
+        
+        if request.FILES.get('profile_photo'):
+            profile.profile_photo = request.FILES.get('profile_photo')
+            
+        password = request.POST.get('password', '').strip()
+        if password:
+            request.user.set_password(password)
+            
+        request.user.save()
+        profile.save()
+        
+        # If client, update client model too
+        if role == UserProfile.ROLE_CLIENT and profile.client:
+            profile.client.first_name = request.user.first_name
+            profile.client.last_name = request.user.last_name
+            profile.client.email = request.user.email
+            if profile.profile_photo:
+                profile.client.profile_photo = profile.profile_photo
+            profile.client.save()
+            
+        messages.success(request, 'Perfil actualizado correctamente.')
+        if password:
+            return redirect('login') # Re-login if password changed
+        return redirect('my_profile')
+
+    if role == UserProfile.ROLE_CLIENT:
+        client = get_linked_client(request.user)
+        if not client:
+            messages.error(request, 'No tienes un perfil de cliente vinculado.')
+            return redirect('dashboard')
+        memberships = client.memberships.order_by('-start_date')
+        payments = client.payments.order_by('-date')
+        physical_history = client.physical_history.order_by('-date')
+        return render(request, 'core/client_profile.html', {
+            'client': client,
+            'memberships': memberships,
+            'payments': payments,
+            'physical_history': physical_history,
+        })
+    
+    # For other roles (Admin, Receptionist, Trainer)
+    return render(request, 'core/staff_profile.html', {
+        'profile': profile,
     })
 
 

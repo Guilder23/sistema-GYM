@@ -8,9 +8,22 @@
         <h3 class="card-title">Datos del Usuario</h3>
     </div>
     <div class="card-body">
-        <form method="POST">
+        <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="form-group" style="grid-column: span 2; display: flex; flex-direction: column; align-items: center; gap: 10px; margin-bottom: 20px;">
+                    <div class="profile-photo-preview" style="width: 120px; height: 120px; border-radius: 50%; overflow: hidden; border: 3px solid var(--color-primary); background: var(--bg-card);">
+                        {% if profile.profile_photo %}
+                            <img src="{{ profile.profile_photo.url }}" id="photo-preview" style="width: 100%; height: 100%; object-fit: cover;">
+                        {% else %}
+                            <img src="https://ui-avatars.com/api/?name={{ managed_user.username|default:'U' }}&background=6366f1&color=fff&size=120" id="photo-preview" style="width: 100%; height: 100%; object-fit: cover;">
+                        {% endif %}
+                    </div>
+                    <label for="profile_photo" class="btn btn-secondary btn-sm" style="cursor: pointer;">
+                        <i class="fas fa-camera"></i> Seleccionar Foto
+                    </label>
+                    <input type="file" id="profile_photo" name="profile_photo" style="display: none;" accept="image/*" onchange="previewImage(this)">
+                </div>
                 <div class="form-group">
                     <label for="username">Nombre de Usuario *</label>
                     <input type="text" id="username" name="username" class="form-control" value="{{ managed_user.username|default:'' }}" required>
@@ -75,6 +88,16 @@
 </div>
 
 <script>
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('photo-preview').src = e.target.result;
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
     function toggleRoleFields() {
         const role = document.getElementById('role').value;
         const clientField = document.getElementById('client_field');

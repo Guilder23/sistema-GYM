@@ -10,31 +10,49 @@
                 <h3 class="card-title">Datos Personales</h3>
             </div>
             <div class="card-body">
-                <div style="display: flex; gap: 24px; align-items: flex-start;">
-                    <img src="https://ui-avatars.com/api/?name={{ client.full_name }}&size=128&background=6366f1&color=fff" style="width: 128px; height: 128px; border-radius: 16px;">
-                    <div style="flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                        <div>
-                            <label style="display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Nombre Completo</label>
-                            <p style="font-weight: 600;">{{ client.full_name }}</p>
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div style="display: flex; gap: 24px; align-items: flex-start; margin-bottom: 24px;">
+                        <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+                            <div class="profile-photo-preview" style="width: 128px; height: 128px; border-radius: 16px; overflow: hidden; border: 3px solid var(--color-primary);">
+                                {% if client.profile_photo %}
+                                    <img src="{{ client.profile_photo.url }}" id="photo-preview" style="width: 100%; height: 100%; object-fit: cover;">
+                                {% else %}
+                                    <img src="https://ui-avatars.com/api/?name={{ client.full_name }}&size=128&background=6366f1&color=fff" id="photo-preview" style="width: 100%; height: 100%; object-fit: cover;">
+                                {% endif %}
+                            </div>
+                            <label for="profile_photo" class="btn btn-secondary btn-sm" style="cursor: pointer; width: 100%; justify-content: center;">
+                                <i class="fas fa-camera"></i> Cambiar
+                            </label>
+                            <input type="file" id="profile_photo" name="profile_photo" style="display: none;" accept="image/*" onchange="previewImage(this)">
                         </div>
-                        <div>
-                            <label style="display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">CI / Documento</label>
-                            <p style="font-weight: 600;">{{ client.document_number|default:"-" }}</p>
-                        </div>
-                        <div>
-                            <label style="display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Email</label>
-                            <p style="font-weight: 600;">{{ client.email|default:"-" }}</p>
-                        </div>
-                        <div>
-                            <label style="display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Teléfono</label>
-                            <p style="font-weight: 600;">{{ client.phone|default:"-" }}</p>
-                        </div>
-                        <div style="grid-column: span 2;">
-                            <label style="display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Objetivos</label>
-                            <p>{{ client.goals|default:"No especificados" }}</p>
+                        <div style="flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div class="form-group">
+                                <label for="first_name" style="display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Nombre(s)</label>
+                                <input type="text" id="first_name" name="first_name" class="form-control" value="{{ client.first_name }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="last_name" style="display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Apellido(s)</label>
+                                <input type="text" id="last_name" name="last_name" class="form-control" value="{{ client.last_name }}">
+                            </div>
+                            <div class="form-group">
+                                <label style="display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">CI / Documento</label>
+                                <input type="text" class="form-control" value="{{ client.ci }}" disabled>
+                            </div>
+                            <div class="form-group">
+                                <label for="email" style="display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Email</label>
+                                <input type="email" id="email" name="email" class="form-control" value="{{ client.email }}">
+                            </div>
+                            <div class="form-group" style="grid-column: span 2;">
+                                <label for="password" style="display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Nueva Contraseña (dejar en blanco para no cambiar)</label>
+                                <input type="password" id="password" name="password" class="form-control">
+                            </div>
                         </div>
                     </div>
-                </div>
+                    <div style="display: flex; justify-content: flex-end;">
+                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                    </div>
+                </form>
             </div>
         </div>
 
@@ -101,4 +119,18 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('photo-preview').src = e.target.result;
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>
 {% endblock %}

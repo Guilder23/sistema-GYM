@@ -30,6 +30,7 @@ class UserProfile(models.Model):
 
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default=ROLE_RECEPTION)
+    profile_photo = models.ImageField(upload_to='perfiles/', blank=True, null=True)
     client = models.OneToOneField(Client, on_delete=models.SET_NULL, null=True, blank=True, related_name='auth_profile')
     trainer = models.OneToOneField(Trainer, on_delete=models.SET_NULL, null=True, blank=True, related_name='auth_profile')
 
