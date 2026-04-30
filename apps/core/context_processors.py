@@ -16,9 +16,17 @@ def notifications_count(request):
     linked_client = get_linked_client(request.user)
     linked_trainer = get_linked_trainer(request.user)
 
+    from django.db.models import Q
     notifications = Notification.objects.filter(sent=True)
+    
     if current_user_role == 'CLIENTE' and linked_client:
-        notifications = notifications.filter(recipient=linked_client)
+        notifications = notifications.filter(
+            Q(is_global=True) | Q(recipient_client=linked_client)
+        )
+    else:
+        notifications = notifications.filter(
+            Q(is_global=True) | Q(recipient_user=request.user)
+        )
 
     count = notifications.filter(is_read=False).count()
     return {
