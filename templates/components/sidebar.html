@@ -102,6 +102,10 @@
             <i class="fas fa-receipt"></i>
             <span>Mis Pagos</span>
         </a>
+        <a href="{% url 'my_purchases' %}" class="nav-item {% if 'my_purchases' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="fas fa-shopping-bag"></i>
+            <span>Mis Compras</span>
+        </a>
         <a href="{% url 'my_routines' %}" class="nav-item {% if 'my_routines' in request.resolver_match.url_name %}active{% endif %}">
             <i class="fas fa-dumbbell"></i>
             <span>Mis Rutinas</span>
@@ -109,6 +113,15 @@
         <a href="{% url 'my_reservations' %}" class="nav-item {% if 'my_reservations' in request.resolver_match.url_name %}active{% endif %}">
             <i class="fas fa-calendar-check"></i>
             <span>Mis Reservas</span>
+        </a>
+        {% else %}
+        <a href="{% url 'my_profile' %}" class="nav-item {% if 'my_profile' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="fas fa-user"></i>
+            <span>Mi Perfil</span>
+        </a>
+        <a href="{% url 'my_purchases' %}" class="nav-item {% if 'my_purchases' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="fas fa-shopping-bag"></i>
+            <span>Mis Compras</span>
         </a>
         {% endif %}
     </nav>

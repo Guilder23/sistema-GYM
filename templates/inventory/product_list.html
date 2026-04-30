@@ -55,6 +55,9 @@
                         </td>
                         <td>
                             <div style="display: flex; gap: 8px;">
+                                <a href="{% url 'product_stock_adjust' product.id %}" class="btn btn-secondary btn-sm" title="Ajustar Stock" style="color: var(--color-primary);">
+                                    <i class="fas fa-boxes-stacked"></i>
+                                </a>
                                 <a href="{% url 'product_edit' product.id %}" class="btn btn-secondary btn-sm" title="Editar">
                                     <i class="fas fa-edit"></i>
                                 </a>
