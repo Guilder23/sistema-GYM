@@ -1,22 +1,23 @@
 import uuid
 
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
 from .models import MembershipPlan, Membership, Payment
 from apps.clients.models import Client
 from datetime import datetime, timedelta
+from apps.core.models import UserProfile
+from apps.core.permissions import role_required
 
 
-@login_required
+@role_required(UserProfile.ROLE_ADMIN, UserProfile.ROLE_RECEPTION)
 def membership_plans(request):
     plans = MembershipPlan.objects.all()
     context = {'plans': plans}
     return render(request, 'memberships/plan_list.html', context)
 
 
-@login_required
+@role_required(UserProfile.ROLE_ADMIN, UserProfile.ROLE_RECEPTION)
 def membership_plan_create(request):
     if request.method == 'POST':
         name = request.POST.get('name', '').strip()
@@ -41,7 +42,7 @@ def membership_plan_create(request):
     return render(request, 'memberships/plan_form.html')
 
 
-@login_required
+@role_required(UserProfile.ROLE_ADMIN, UserProfile.ROLE_RECEPTION)
 def membership_for_client(request, client_id):
     client = get_object_or_404(Client, id=client_id)
     plans = MembershipPlan.objects.filter(active=True).order_by('duration_days', 'price')
@@ -75,14 +76,14 @@ def membership_for_client(request, client_id):
     return render(request, 'memberships/assign_membership.html', context)
 
 
-@login_required
+@role_required(UserProfile.ROLE_ADMIN, UserProfile.ROLE_RECEPTION)
 def payment_history(request):
     payments = Payment.objects.all().order_by('-date')
     context = {'payments': payments}
     return render(request, 'memberships/payment_history.html', context)
 
 
-@login_required
+@role_required(UserProfile.ROLE_ADMIN, UserProfile.ROLE_RECEPTION)
 def payment_create(request):
     clients = Client.objects.filter(is_active=True).order_by('first_name', 'last_name')
 

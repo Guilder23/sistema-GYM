@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+{% block title %}Mi Portal - GYM PRO{% endblock %}
+{% block page_title %}BIENVENIDO, {{ client.first_name|upper }}{% endblock %}
+
+{% block content %}
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon" style="background: rgba(99, 102, 241, 0.1); color: #6366f1;">
+            <i class="fas fa-id-card"></i>
+        </div>
+        <div class="stat-info">
+            <span class="stat-label">Mi Membresía</span>
+            <span class="stat-value" style="font-size: 1.2rem;">{{ current_membership.plan.name|default:"Sin plan" }}</span>
+            <div class="stat-trend">
+                <i class="fas fa-calendar"></i> Vence: {{ current_membership.end_date|date:"d/m/Y"|default:"-" }}
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+            <i class="fas fa-dumbbell"></i>
+        </div>
+        <div class="stat-info">
+            <span class="stat-label">Rutina Actual</span>
+            <span class="stat-value" style="font-size: 1.2rem;">{{ latest_routines.0.name|default:"Sin rutina" }}</span>
+            <div class="stat-trend">
+                <i class="fas fa-user-tie"></i> Por: {{ latest_routines.0.trainer.full_name|default:"Gimnasio" }}
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+            <i class="fas fa-calendar-check"></i>
+        </div>
+        <div class="stat-info">
+            <span class="stat-label">Próxima Clase</span>
+            <span class="stat-value" style="font-size: 1.2rem;">{{ upcoming_reservations.0.schedule.class_type.name|default:"Ninguna" }}</span>
+            <div class="stat-trend">
+                <i class="fas fa-clock"></i> {{ upcoming_reservations.0.schedule.start_time|time:"H:i A"|default:"-" }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <div class="grid-left">
+        <div class="card" style="margin-bottom: 24px;">
+            <div class="card-header">
+                <h3 class="card-title">Mis Rutinas</h3>
+                <a href="{% url 'my_routines' %}" class="btn btn-secondary btn-sm">Ver todas</a>
+            </div>
+            <div class="card-body">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Entrenador</th>
+                                <th>Fecha</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for routine in latest_routines %}
+                            <tr>
+                                <td>{{ routine.name }}</td>
+                                <td>{{ routine.trainer.full_name|default:"Gimnasio" }}</td>
+                                <td>{{ routine.created_at|date:"d/m/Y" }}</td>
+                                <td>
+                                    <a href="{% url 'routine_detail' routine.id %}" class="btn btn-secondary btn-sm">Ver</a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 32px;">Aún no tienes rutinas asignadas</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Historial de Pagos</h3>
+                <a href="{% url 'my_payments' %}" class="btn btn-secondary btn-sm">Ver todos</a>
+            </div>
+            <div class="card-body">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Plan</th>
+                                <th>Monto</th>
+                                <th>Fecha</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for payment in latest_payments %}
+                            <tr>
+                                <td>{{ payment.membership.plan.name }}</td>
+                                <td>${{ payment.amount }}</td>
+                                <td>{{ payment.date|date:"d/m/Y" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="3" style="text-align: center; color: var(--text-muted); padding: 32px;">No hay pagos registrados</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid-right">
+        <div class="card" style="margin-bottom: 24px;">
+            <div class="card-header">
+                <h3 class="card-title">Mis Reservas</h3>
+                <a href="{% url 'my_reservations' %}" class="btn btn-secondary btn-sm">Gestionar</a>
+            </div>
+            <div class="card-body" style="padding: 0;">
+                {% for res in upcoming_reservations %}
+                <div style="padding: 16px 24px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 16px;">
+                    <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(99, 102, 241, 0.1); color: #6366f1; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div style="flex: 1;">
+                        <h5 style="font-size: 14px; margin-bottom: 2px;">{{ res.schedule.class_type.name }}</h5>
+                        <p style="font-size: 12px; color: var(--text-muted);">{{ res.schedule.date|date:"d/m/Y" }} - {{ res.schedule.start_time|time:"H:i A" }}</p>
+                    </div>
+                </div>
+                {% empty %}
+                <div style="padding: 32px; text-align: center; color: var(--text-muted);">No tienes reservas próximas</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Notificaciones</h3>
+            </div>
+            <div class="card-body" style="padding: 0;">
+                {% for notification in notifications %}
+                <div style="padding: 12px 24px; border-bottom: 1px solid var(--border-color);">
+                    <h6 style="font-size: 13px; margin-bottom: 2px;">{{ notification.title }}</h6>
+                    <p style="font-size: 11px; color: var(--text-muted);">{{ notification.created_at|date:"d/m/Y" }}</p>
+                </div>
+                {% empty %}
+                <div style="padding: 24px; text-align: center; color: var(--text-muted); font-size: 13px;">Sin notificaciones nuevas</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

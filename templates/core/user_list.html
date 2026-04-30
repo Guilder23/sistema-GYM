@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block title %}Gestión de Usuarios - GYM PRO{% endblock %}
+{% block page_title %}GESTIÓN DE USUARIOS{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Usuarios del Sistema</h3>
+        <a href="{% url 'user_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Nuevo Usuario
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Nombre</th>
+                        <th>Rol</th>
+                        <th>Estado</th>
+                        <th>Vinculación</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in users %}
+                    <tr>
+                        <td>
+                            <div style="font-weight: 600;">{{ u.username }}</div>
+                            <div style="font-size: 11px; color: var(--text-muted);">{{ u.email }}</div>
+                        </td>
+                        <td>{{ u.get_full_name|default:"-" }}</td>
+                        <td>
+                            <span class="badge-role">{{ u.profile.role_label }}</span>
+                        </td>
+                        <td>
+                            {% if u.is_active %}
+                                <span class="badge-status status-active">Activo</span>
+                            {% else %}
+                                <span class="badge-status status-inactive">Bloqueado</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if u.profile.role == 'CLIENTE' %}
+                                <span style="font-size: 12px; color: var(--text-muted);">Cliente:</span> {{ u.profile.client.full_name|default:"-" }}
+                            {% elif u.profile.role == 'ENTRENADOR' %}
+                                <span style="font-size: 12px; color: var(--text-muted);">Entrenador:</span> {{ u.profile.trainer.full_name|default:"-" }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'user_edit' u.id %}" class="btn btn-secondary btn-sm"><i class="fas fa-edit"></i></a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 32px;">No hay usuarios registrados</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    .badge-role {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 600;
+        background: rgba(99, 102, 241, 0.1);
+        color: #6366f1;
+    }
+</style>
+{% endblock %}

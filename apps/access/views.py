@@ -1,13 +1,14 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import AccessRecord
 from apps.clients.models import Client
 from apps.memberships.models import Membership
 from django.utils import timezone
+from apps.core.models import UserProfile
+from apps.core.permissions import role_required
 
 
-@login_required
+@role_required(UserProfile.ROLE_ADMIN, UserProfile.ROLE_RECEPTION)
 def access_panel(request):
     recent_access = AccessRecord.objects.all().order_by('-timestamp')[:20]
     
@@ -58,7 +59,7 @@ def access_panel(request):
     return render(request, 'access/access_panel.html', context)
 
 
-@login_required
+@role_required(UserProfile.ROLE_ADMIN, UserProfile.ROLE_RECEPTION)
 def access_history(request):
     access_records = AccessRecord.objects.all().order_by('-timestamp')
     context = {'access_records': access_records}

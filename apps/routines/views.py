@@ -1,15 +1,20 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.db import models
 from apps.clients.models import Client
 from apps.trainers.models import Trainer
 from .models import Routine, Exercise, RoutineExercise
+from apps.core.models import UserProfile
+from apps.core.permissions import get_linked_trainer, get_user_role, role_required
 
 
-@login_required
+@role_required(UserProfile.ROLE_ADMIN, UserProfile.ROLE_TRAINER)
 def routine_list(request):
     search_query = request.GET.get('q', '')
     routines = Routine.objects.all().order_by('-created_at')
+    if get_user_role(request.user) == UserProfile.ROLE_TRAINER:
+        trainer = get_linked_trainer(request.user)
+        routines = routines.filter(models.Q(trainer=trainer) | models.Q(client__trainer=trainer)).distinct()
     if search_query:
         routines = routines.filter(
             models.Q(name__icontains=search_query) |
@@ -20,10 +25,16 @@ def routine_list(request):
     return render(request, 'routines/routine_list.html', context)
 
 
-@login_required
+@role_required(UserProfile.ROLE_ADMIN, UserProfile.ROLE_TRAINER)
 def routine_create(request):
     clients = Client.objects.filter(is_active=True).order_by('first_name', 'last_name')
     trainers = Trainer.objects.filter(active=True).order_by('full_name')
+    current_role = get_user_role(request.user)
+    linked_trainer = get_linked_trainer(request.user)
+
+    if current_role == UserProfile.ROLE_TRAINER:
+        clients = clients.filter(trainer=linked_trainer)
+        trainers = trainers.filter(id=linked_trainer.id if linked_trainer else None)
     
     if request.method == 'POST':
         name = request.POST.get('name', '').strip()
@@ -31,9 +42,11 @@ def routine_create(request):
         trainer_id = request.POST.get('trainer_id')
         notes = request.POST.get('notes', '').strip()
         
-        client = get_object_or_404(Client, id=client_id)
+        client = get_object_or_404(clients, id=client_id)
         trainer = None
-        if trainer_id:
+        if current_role == UserProfile.ROLE_TRAINER:
+            trainer = linked_trainer
+        elif trainer_id:
             trainer = get_object_or_404(Trainer, id=trainer_id)
             
         routine = Routine.objects.create(
@@ -49,9 +62,15 @@ def routine_create(request):
     return render(request, 'routines/routine_form.html', context)
 
 
-@login_required
+@role_required(UserProfile.ROLE_ADMIN, UserProfile.ROLE_TRAINER)
 def routine_detail(request, routine_id):
-    routine = get_object_or_404(Routine, id=routine_id)
+    routine_queryset = Routine.objects.all()
+    if get_user_role(request.user) == UserProfile.ROLE_TRAINER:
+        trainer = get_linked_trainer(request.user)
+        routine_queryset = routine_queryset.filter(
+            models.Q(trainer=trainer) | models.Q(client__trainer=trainer)
+        ).distinct()
+    routine = get_object_or_404(routine_queryset, id=routine_id)
     routine_exercises = routine.routine_exercises.select_related('exercise', 'exercise__category').all()
     exercises = Exercise.objects.all().order_by('category__name', 'name')
     

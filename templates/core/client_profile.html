@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% block title %}Mi Perfil - GYM PRO{% endblock %}
+{% block page_title %}MI PERFIL{% endblock %}
+
+{% block content %}
+<div class="dashboard-grid">
+    <div class="grid-left">
+        <div class="card" style="margin-bottom: 24px;">
+            <div class="card-header">
+                <h3 class="card-title">Datos Personales</h3>
+            </div>
+            <div class="card-body">
+                <div style="display: flex; gap: 24px; align-items: flex-start;">
+                    <img src="https://ui-avatars.com/api/?name={{ client.full_name }}&size=128&background=6366f1&color=fff" style="width: 128px; height: 128px; border-radius: 16px;">
+                    <div style="flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div>
+                            <label style="display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Nombre Completo</label>
+                            <p style="font-weight: 600;">{{ client.full_name }}</p>
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">CI / Documento</label>
+                            <p style="font-weight: 600;">{{ client.document_number|default:"-" }}</p>
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Email</label>
+                            <p style="font-weight: 600;">{{ client.email|default:"-" }}</p>
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Teléfono</label>
+                            <p style="font-weight: 600;">{{ client.phone|default:"-" }}</p>
+                        </div>
+                        <div style="grid-column: span 2;">
+                            <label style="display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Objetivos</label>
+                            <p>{{ client.goals|default:"No especificados" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Historial Físico</h3>
+            </div>
+            <div class="card-body">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Peso (kg)</th>
+                                <th>Altura (cm)</th>
+                                <th>IMC</th>
+                                <th>Grasa %</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record in physical_history %}
+                            <tr>
+                                <td>{{ record.date|date:"d/m/Y" }}</td>
+                                <td>{{ record.weight }}</td>
+                                <td>{{ record.height }}</td>
+                                <td>{{ record.bmi|floatformat:1 }}</td>
+                                <td>{{ record.body_fat|default:"-" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 32px;">No hay registros físicos aún</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid-right">
+        <div class="card" style="margin-bottom: 24px;">
+            <div class="card-header">
+                <h3 class="card-title">Membresías</h3>
+            </div>
+            <div class="card-body" style="padding: 0;">
+                {% for membership in memberships %}
+                <div style="padding: 16px 24px; border-bottom: 1px solid var(--border-color);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                        <h5 style="font-size: 14px; font-weight: 600;">{{ membership.plan.name }}</h5>
+                        {% if membership.active %}
+                            <span class="badge-status status-active">Activa</span>
+                        {% else %}
+                            <span class="badge-status status-inactive">Vencida</span>
+                        {% endif %}
+                    </div>
+                    <p style="font-size: 12px; color: var(--text-muted);">Desde: {{ membership.start_date|date:"d/m/Y" }}</p>
+                    <p style="font-size: 12px; color: var(--text-muted);">Hasta: {{ membership.end_date|date:"d/m/Y" }}</p>
+                </div>
+                {% empty %}
+                <div style="padding: 32px; text-align: center; color: var(--text-muted);">No tienes historial de membresías</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

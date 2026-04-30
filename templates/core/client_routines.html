@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}Mis Rutinas - GYM PRO{% endblock %}
+{% block page_title %}MIS RUTINAS DE ENTRENAMIENTO{% endblock %}
+
+{% block content %}
+<div class="routines-list">
+    {% for routine in routines %}
+    <div class="card" style="margin-bottom: 24px;">
+        <div class="card-header" style="background: rgba(99, 102, 241, 0.05);">
+            <div>
+                <h3 class="card-title">{{ routine.name }}</h3>
+                <p style="font-size: 12px; color: var(--text-muted);">Asignada el {{ routine.created_at|date:"d/m/Y" }} por {{ routine.trainer.full_name|default:"Gimnasio" }}</p>
+            </div>
+            {% if routine.active %}
+                <span class="badge-status status-active">Rutina Actual</span>
+            {% endif %}
+        </div>
+        <div class="card-body">
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ejercicio</th>
+                            <th>Series</th>
+                            <th>Reps</th>
+                            <th>Descanso</th>
+                            <th>Notas</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in routine.routine_exercises.all %}
+                        <tr>
+                            <td style="font-weight: 600;">{{ item.exercise.name }}</td>
+                            <td>{{ item.sets }}</td>
+                            <td>{{ item.reps }}</td>
+                            <td>{{ item.rest_time|default:"-" }}</td>
+                            <td>{{ item.notes|default:"-" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: var(--text-muted);">No hay ejercicios detallados en esta rutina</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="card">
+        <div class="card-body" style="text-align: center; padding: 48px;">
+            <i class="fas fa-dumbbell" style="font-size: 48px; color: var(--border-color); margin-bottom: 16px; display: block;"></i>
+            <h3>Aún no tienes rutinas</h3>
+            <p style="color: var(--text-muted);">Tu entrenador asignará rutinas personalizadas para ti muy pronto.</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

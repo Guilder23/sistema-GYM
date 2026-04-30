@@ -1,18 +1,21 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import ClassSchedule, Reservation, ClassType
 from apps.trainers.models import Trainer
+from apps.core.models import UserProfile
+from apps.core.permissions import get_linked_trainer, get_user_role, role_required
 
 
-@login_required
+@role_required(UserProfile.ROLE_ADMIN, UserProfile.ROLE_RECEPTION, UserProfile.ROLE_TRAINER)
 def reservation_list(request):
     classes = ClassSchedule.objects.all().order_by('date', 'start_time')
+    if get_user_role(request.user) == UserProfile.ROLE_TRAINER:
+        classes = classes.filter(trainer=get_linked_trainer(request.user))
     context = {'classes': classes}
     return render(request, 'reservations/reservation_list.html', context)
 
 
-@login_required
+@role_required(UserProfile.ROLE_ADMIN, UserProfile.ROLE_RECEPTION)
 def class_create(request):
     class_types = ClassType.objects.all()
     trainers = Trainer.objects.filter(active=True).order_by('full_name')
@@ -45,9 +48,12 @@ def class_create(request):
     return render(request, 'reservations/class_form.html', context)
 
 
-@login_required
+@role_required(UserProfile.ROLE_ADMIN, UserProfile.ROLE_RECEPTION, UserProfile.ROLE_TRAINER)
 def class_detail(request, class_id):
-    class_schedule = get_object_or_404(ClassSchedule, id=class_id)
+    classes = ClassSchedule.objects.all()
+    if get_user_role(request.user) == UserProfile.ROLE_TRAINER:
+        classes = classes.filter(trainer=get_linked_trainer(request.user))
+    class_schedule = get_object_or_404(classes, id=class_id)
     reservations = class_schedule.reservations.all()
     context = {'class': class_schedule, 'reservations': reservations}
     return render(request, 'reservations/class_detail.html', context)

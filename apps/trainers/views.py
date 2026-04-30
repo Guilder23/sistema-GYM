@@ -1,14 +1,15 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Trainer
+from apps.core.models import UserProfile
+from apps.core.permissions import role_required
 
-@login_required
+@role_required(UserProfile.ROLE_ADMIN, UserProfile.ROLE_RECEPTION)
 def trainer_list(request):
     trainers = Trainer.objects.all().order_by('full_name')
     return render(request, 'trainers/trainer_list.html', {'trainers': trainers})
 
-@login_required
+@role_required(UserProfile.ROLE_ADMIN)
 def trainer_create(request):
     if request.method == 'POST':
         full_name = request.POST.get('full_name')
@@ -29,7 +30,7 @@ def trainer_create(request):
     
     return render(request, 'trainers/trainer_form.html')
 
-@login_required
+@role_required(UserProfile.ROLE_ADMIN)
 def trainer_edit(request, trainer_id):
     trainer = get_object_or_404(Trainer, id=trainer_id)
     if request.method == 'POST':

@@ -12,60 +12,105 @@
             <span>Panel de Control</span>
         </a>
 
+        {% if request.user.profile.role == 'ADMIN' or request.user.profile.role == 'RECEPCIONISTA' %}
         <a href="{% url 'client_list' %}" class="nav-item {% if 'client' in request.resolver_match.url_name %}active{% endif %}">
             <i class="fas fa-users"></i>
             <span>Clientes</span>
         </a>
+        {% endif %}
 
+        {% if request.user.profile.role == 'ADMIN' or request.user.profile.role == 'RECEPCIONISTA' %}
         <a href="{% url 'plan_list' %}" class="nav-item {% if 'plan' in request.resolver_match.url_name %}active{% endif %}">
             <i class="fas fa-id-card"></i>
             <span>Membresías</span>
         </a>
+        {% endif %}
 
+        {% if request.user.profile.role == 'ADMIN' or request.user.profile.role == 'RECEPCIONISTA' %}
         <a href="{% url 'payment_list' %}" class="nav-item {% if 'payment' in request.resolver_match.url_name %}active{% endif %}">
             <i class="fas fa-money-bill-wave"></i>
             <span>Pagos</span>
         </a>
+        {% endif %}
 
+        {% if request.user.profile.role == 'ADMIN' or request.user.profile.role == 'RECEPCIONISTA' %}
         <a href="{% url 'access_panel' %}" class="nav-item {% if 'access' in request.resolver_match.url_name %}active{% endif %}">
             <i class="fas fa-fingerprint"></i>
             <span>Control de Acceso</span>
         </a>
+        {% endif %}
 
+        {% if request.user.profile.role == 'ADMIN' or request.user.profile.role == 'ENTRENADOR' %}
         <a href="{% url 'routine_list' %}" class="nav-item {% if 'routine' in request.resolver_match.url_name %}active{% endif %}">
             <i class="fas fa-clipboard-list"></i>
             <span>Rutinas</span>
         </a>
+        {% endif %}
 
+        {% if request.user.profile.role == 'ADMIN' %}
         <a href="{% url 'trainers:list' %}" class="nav-item {% if 'trainers' in request.resolver_match.app_name %}active{% endif %}">
             <i class="fas fa-user-tie"></i>
             <span>Entrenadores</span>
         </a>
+        {% endif %}
 
+        {% if request.user.profile.role != 'CLIENTE' %}
         <a href="{% url 'reservation_list' %}" class="nav-item {% if 'reservation' in request.resolver_match.url_name %}active{% endif %}">
             <i class="fas fa-calendar-check"></i>
             <span>Clases y Reservas</span>
         </a>
+        {% endif %}
 
+        {% if request.user.profile.role == 'ADMIN' or request.user.profile.role == 'RECEPCIONISTA' %}
         <a href="{% url 'product_list' %}" class="nav-item {% if 'product' in request.resolver_match.url_name %}active{% endif %}">
             <i class="fas fa-boxes-stacked"></i>
             <span>Inventario</span>
         </a>
+        {% endif %}
 
+        {% if request.user.profile.role == 'ADMIN' %}
         <a href="{% url 'reports_dashboard' %}" class="nav-item {% if 'reports' in request.resolver_match.url_name %}active{% endif %}">
             <i class="fas fa-chart-pie"></i>
             <span>Reportes</span>
         </a>
+        {% endif %}
 
+        {% if request.user.profile.role != 'CLIENTE' %}
         <a href="{% url 'notification_list' %}" class="nav-item {% if 'notification' in request.resolver_match.url_name %}active{% endif %}">
             <i class="fas fa-bell"></i>
             <span>Notificaciones</span>
         </a>
+        {% endif %}
 
+        {% if request.user.profile.role == 'ADMIN' %}
         <a href="{% url 'system_settings' %}" class="nav-item {% if 'system_settings' in request.resolver_match.url_name %}active{% endif %}">
             <i class="fas fa-gear"></i>
             <span>Configuración</span>
         </a>
+        <a href="{% url 'user_list' %}" class="nav-item {% if 'user' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="fas fa-user-shield"></i>
+            <span>Gestión de Usuarios</span>
+        </a>
+        {% endif %}
+
+        {% if request.user.profile.role == 'CLIENTE' %}
+        <a href="{% url 'my_profile' %}" class="nav-item {% if 'my_profile' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="fas fa-user"></i>
+            <span>Mi Perfil</span>
+        </a>
+        <a href="{% url 'my_payments' %}" class="nav-item {% if 'my_payments' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="fas fa-receipt"></i>
+            <span>Mis Pagos</span>
+        </a>
+        <a href="{% url 'my_routines' %}" class="nav-item {% if 'my_routines' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="fas fa-dumbbell"></i>
+            <span>Mis Rutinas</span>
+        </a>
+        <a href="{% url 'my_reservations' %}" class="nav-item {% if 'my_reservations' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="fas fa-calendar-check"></i>
+            <span>Mis Reservas</span>
+        </a>
+        {% endif %}
     </nav>
 
     <div class="sidebar-footer">
@@ -73,7 +118,7 @@
             <img src="https://ui-avatars.com/api/?name={{ request.user.get_full_name|default:request.user.username }}&background=6366f1&color=fff" alt="User" class="user-avatar">
             <div class="user-info">
                 <span class="user-name">{{ request.user.get_full_name|default:request.user.username }}</span>
-                <span class="user-role">Administrador</span>
+                <span class="user-role">{{ request.user.profile.role_label }}</span>
             </div>
             <a href="{% url 'logout' %}" title="Cerrar Sesión" style="color: var(--text-muted);"><i class="fas fa-sign-out-alt"></i></a>
         </div>

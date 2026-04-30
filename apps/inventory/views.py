@@ -1,11 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Product, Sale, ProductCategory, SaleItem
 from apps.clients.models import Client
+from apps.core.models import UserProfile
+from apps.core.permissions import role_required
 
 
-@login_required
+@role_required(UserProfile.ROLE_ADMIN, UserProfile.ROLE_RECEPTION)
 def product_list(request):
     search_query = request.GET.get('q', '')
     products = Product.objects.all().order_by('name')
@@ -15,7 +16,7 @@ def product_list(request):
     return render(request, 'inventory/product_list.html', context)
 
 
-@login_required
+@role_required(UserProfile.ROLE_ADMIN, UserProfile.ROLE_RECEPTION)
 def product_create(request):
     categories = ProductCategory.objects.all()
     if request.method == 'POST':
@@ -46,7 +47,7 @@ def product_create(request):
     return render(request, 'inventory/product_form.html', {'categories': categories})
 
 
-@login_required
+@role_required(UserProfile.ROLE_ADMIN, UserProfile.ROLE_RECEPTION)
 def product_edit(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     categories = ProductCategory.objects.all()
@@ -72,7 +73,7 @@ def product_edit(request, product_id):
 
 
 # Lógica del Carrito de Compras
-@login_required
+@role_required(UserProfile.ROLE_ADMIN, UserProfile.ROLE_RECEPTION)
 def cart_add(request, product_id):
     cart = request.session.get('cart', {})
     product = get_object_or_404(Product, id=product_id)
@@ -96,7 +97,7 @@ def cart_add(request, product_id):
     return redirect('product_list')
 
 
-@login_required
+@role_required(UserProfile.ROLE_ADMIN, UserProfile.ROLE_RECEPTION)
 def cart_detail(request):
     cart = request.session.get('cart', {})
     clients = Client.objects.filter(is_active=True).order_by('first_name')
@@ -122,7 +123,7 @@ def cart_detail(request):
     return render(request, 'inventory/cart_detail.html', context)
 
 
-@login_required
+@role_required(UserProfile.ROLE_ADMIN, UserProfile.ROLE_RECEPTION)
 def cart_remove(request, product_id):
     cart = request.session.get('cart', {})
     p_id = str(product_id)
@@ -133,13 +134,13 @@ def cart_remove(request, product_id):
     return redirect('cart_detail')
 
 
-@login_required
+@role_required(UserProfile.ROLE_ADMIN, UserProfile.ROLE_RECEPTION)
 def cart_clear(request):
     request.session['cart'] = {}
     return redirect('product_list')
 
 
-@login_required
+@role_required(UserProfile.ROLE_ADMIN, UserProfile.ROLE_RECEPTION)
 def cart_checkout(request):
     cart = request.session.get('cart', {})
     if not cart:
@@ -180,7 +181,7 @@ def cart_checkout(request):
     return redirect('cart_detail')
 
 
-@login_required
+@role_required(UserProfile.ROLE_ADMIN, UserProfile.ROLE_RECEPTION)
 def sale_list(request):
     sales = Sale.objects.all().order_by('-date')
     context = {'sales': sales}

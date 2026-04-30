@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}Mis Reservas - GYM PRO{% endblock %}
+{% block page_title %}MIS RESERVAS DE CLASES{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Próximas Clases Reservadas</h3>
+    </div>
+    <div class="card-body">
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Hora</th>
+                        <th>Clase</th>
+                        <th>Entrenador</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for res in reservations %}
+                    <tr>
+                        <td>{{ res.schedule.date|date:"d/m/Y" }}</td>
+                        <td>{{ res.schedule.start_time|time:"H:i A" }}</td>
+                        <td style="font-weight: 600;">{{ res.schedule.class_type.name }}</td>
+                        <td>{{ res.schedule.trainer.full_name|default:"-" }}</td>
+                        <td>
+                            {% if res.attended %}
+                                <span class="badge-status status-active">Asistido</span>
+                            {% else %}
+                                <span class="badge-status status-pending">Pendiente</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if not res.attended %}
+                                <button class="btn btn-secondary btn-sm" style="color: #ef4444; border-color: #ef4444;">Cancelar</button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 32px;">No tienes reservas de clases próximas</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div style="margin-top: 24px;">
+    <a href="{% url 'reservation_list' %}" class="btn btn-primary">
+        <i class="fas fa-calendar-plus"></i> Reservar nueva clase
+    </a>
+</div>
+{% endblock %}

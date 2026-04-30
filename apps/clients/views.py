@@ -1,18 +1,32 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db import models
 from decimal import Decimal, InvalidOperation
 from apps.clients.models import Client, PhysicalDataHistory
 from apps.memberships.models import Membership, Payment
 from apps.access.models import AccessRecord
+from apps.core.models import UserProfile
+from apps.core.permissions import get_linked_client, get_linked_trainer, get_user_role, role_required
 
-@login_required
+
+def _get_role_scoped_clients(request):
+    role = get_user_role(request.user)
+    clients = Client.objects.all()
+    if role == UserProfile.ROLE_TRAINER:
+        trainer = get_linked_trainer(request.user)
+        clients = clients.filter(trainer=trainer)
+    elif role == UserProfile.ROLE_CLIENT:
+        client = get_linked_client(request.user)
+        clients = clients.filter(id=client.id if client else None)
+    return clients
+
+
+@role_required(UserProfile.ROLE_ADMIN, UserProfile.ROLE_RECEPTION, UserProfile.ROLE_TRAINER)
 def client_list(request):
     search_query = request.GET.get('q', '')
     status_filter = request.GET.get('status', 'todos')
     
-    clients = Client.objects.all().order_by('-join_date')
+    clients = _get_role_scoped_clients(request).order_by('-join_date')
     
     if search_query:
         clients = clients.filter(
@@ -33,7 +47,8 @@ def client_list(request):
     }
     return render(request, 'clients/client_list.html', context)
 
-@login_required
+
+@role_required(UserProfile.ROLE_ADMIN, UserProfile.ROLE_RECEPTION)
 def client_create(request):
     if request.method == 'POST':
         first_name = request.POST.get('first_name')
@@ -76,7 +91,8 @@ def client_create(request):
     
     return render(request, 'clients/client_form.html')
 
-@login_required
+
+@role_required(UserProfile.ROLE_ADMIN, UserProfile.ROLE_RECEPTION)
 def client_edit(request, client_id):
     client = get_object_or_404(Client, id=client_id)
     if request.method == 'POST':
@@ -115,9 +131,10 @@ def client_edit(request, client_id):
     
     return render(request, 'clients/client_form.html', {'client': client})
 
-@login_required
+
+@role_required(UserProfile.ROLE_ADMIN, UserProfile.ROLE_RECEPTION, UserProfile.ROLE_TRAINER, UserProfile.ROLE_CLIENT)
 def client_detail(request, client_id):
-    client = get_object_or_404(Client, id=client_id)
+    client = get_object_or_404(_get_role_scoped_clients(request), id=client_id)
     memberships = client.memberships.all().order_by('-start_date')
     payments = client.payments.all().order_by('-date')
     physical_history = client.physical_history.all().order_by('-date')
@@ -147,7 +164,8 @@ def client_detail(request, client_id):
     }
     return render(request, 'clients/client_detail.html', context)
 
-@login_required
+
+@role_required(UserProfile.ROLE_ADMIN, UserProfile.ROLE_RECEPTION)
 def client_delete(request, client_id):
     client = get_object_or_404(Client, id=client_id)
     if request.method == 'POST':
