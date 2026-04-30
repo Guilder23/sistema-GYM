@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}Historial de Ventas - GYM PRO{% endblock %}
+{% block page_title %}HISTORIAL DE VENTAS{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Registro de Ventas Realizadas</h3>
+        <a href="{% url 'product_list' %}" class="btn btn-primary">
+            <i class="fas fa-shopping-cart"></i> Nueva Venta
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID Venta</th>
+                        <th>Fecha y Hora</th>
+                        <th>Cliente</th>
+                        <th>Total</th>
+                        <th>Notas</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sale in sales %}
+                    <tr>
+                        <td><strong>#{{ sale.id }}</strong></td>
+                        <td>{{ sale.date|date:"d/m/Y H:i" }}</td>
+                        <td>
+                            {% if sale.client %}
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <img src="https://ui-avatars.com/api/?name={{ sale.client.full_name }}&background=random" style="width: 24px; height: 24px; border-radius: 6px;">
+                                <span>{{ sale.client.full_name }}</span>
+                            </div>
+                            {% else %}
+                            <span class="badge-status" style="background: rgba(107, 114, 128, 0.1); color: #6b7280;">Venta General</span>
+                            {% endif %}
+                        </td>
+                        <td style="font-weight: 700; color: var(--color-success);">${{ sale.total }}</td>
+                        <td style="font-size: 13px; color: var(--text-muted);">{{ sale.notes|default:"-" }}</td>
+                        <td>
+                            <button class="btn btn-secondary btn-sm" title="Ver detalles">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 48px; color: var(--text-muted);">
+                            <i class="fas fa-receipt" style="font-size: 48px; margin-bottom: 16px; display: block;"></i>
+                            No se han registrado ventas aún.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

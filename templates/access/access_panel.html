@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% block title %}Control de Acceso - GYM PRO{% endblock %}
+{% block page_title %}CONTROL DE ACCESO{% endblock %}
+
+{% block content %}
+<div class="dashboard-grid" style="grid-template-columns: 1fr 2fr;">
+    <div class="grid-left">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Registrar Entrada</h3>
+            </div>
+            <div class="card-body">
+                <form action="" method="POST">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="ci">CI / DNI del Cliente</label>
+                        <input type="text" name="ci" id="ci" class="form-control" placeholder="Ingrese CI o escanee código" autofocus required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 20px;">
+                        <i class="fas fa-sign-in-alt"></i> Procesar Entrada
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top: 24px;">
+            <div class="card-header">
+                <h3 class="card-title">Resumen de Hoy</h3>
+            </div>
+            <div class="card-body">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div style="background: var(--bg-body); padding: 16px; border-radius: 12px; text-align: center;">
+                        <span style="display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Entradas</span>
+                        <span style="font-size: 24px; font-weight: 700; color: var(--color-success);">{{ recent_access.count }}</span>
+                    </div>
+                    <div style="background: var(--bg-body); padding: 16px; border-radius: 12px; text-align: center;">
+                        <span style="display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Denegados</span>
+                        <span style="font-size: 24px; font-weight: 700; color: var(--color-danger);">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid-right">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Últimos Accesos</h3>
+                <a href="{% url 'access_history' %}" class="btn btn-secondary btn-sm">Ver Historial</a>
+            </div>
+            <div class="card-body" style="padding: 0;">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Cliente</th>
+                                <th>Hora</th>
+                                <th>Estado</th>
+                                <th>Mensaje</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for access in recent_access %}
+                            <tr>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <img src="https://ui-avatars.com/api/?name={{ access.client.full_name }}&background=random" style="width: 32px; height: 32px; border-radius: 8px;">
+                                        <span>{{ access.client.full_name }}</span>
+                                    </div>
+                                </td>
+                                <td>{{ access.timestamp|date:"H:i:s" }}</td>
+                                <td>
+                                    {% if access.valid %}
+                                    <span class="badge-status status-active">Válido</span>
+                                    {% else %}
+                                    <span class="badge-status status-expired">Denegado</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ access.message }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" style="text-align: center; padding: 48px; color: var(--text-muted);">No hay registros recientes.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

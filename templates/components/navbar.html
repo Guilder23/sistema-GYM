@@ -1,0 +1,40 @@
+<nav class="navbar">
+    <div class="navbar-left">
+        <h2 class="page-title">
+            {% block page_title %}Dashboard{% endblock %}
+        </h2>
+    </div>
+
+    <div class="navbar-center">
+        <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Buscar clientes, rutinas, pagos...">
+        </div>
+    </div>
+
+    <div class="navbar-right">
+        <div class="navbar-actions">
+            <a href="#" class="nav-btn" title="Mensajes">
+                <i class="fab fa-whatsapp"></i>
+            </a>
+            <a href="{% url 'cart_detail' %}" class="nav-btn" title="Carrito de Ventas">
+                <i class="fas fa-shopping-cart"></i>
+                {% if request.session.cart %}
+                <span class="badge" style="background: var(--color-success);">{{ request.session.cart|length }}</span>
+                {% endif %}
+            </a>
+            <a href="{% url 'notification_list' %}" class="nav-btn" title="Notificaciones">
+                <i class="fas fa-bell"></i>
+                {% if notifications_count > 0 %}
+                <span class="badge">{{ notifications_count }}</span>
+                {% endif %}
+            </a>
+            <div class="user-menu">
+                <div class="user-avatar-mini">
+                    {{ request.user.username|slice:":1"|upper }}
+                </div>
+                <span class="user-name-mini">{{ request.user.username }}</span>
+            </div>
+        </div>
+    </div>
+</nav>

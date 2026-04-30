@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+{% block title %}Perfil de Cliente - GYM PRO{% endblock %}
+{% block page_title %}PERFIL DE CLIENTE{% endblock %}
+
+{% block content %}
+<div class="dashboard-grid" style="grid-template-columns: 1fr 2fr;">
+    <!-- Columna Izquierda: Perfil -->
+    <div class="grid-left">
+        <div class="card" style="text-align: center; padding: 32px 24px;">
+            {% if client.profile_photo %}
+            <img src="{{ client.profile_photo.url }}" style="width: 120px; height: 120px; border-radius: 24px; object-fit: cover; margin-bottom: 20px; border: 4px solid var(--bg-body);">
+            {% else %}
+            <img src="https://ui-avatars.com/api/?name={{ client.full_name }}&background=6366f1&color=fff&size=120" style="width: 120px; height: 120px; border-radius: 24px; margin-bottom: 20px;">
+            {% endif %}
+            
+            <h3 style="font-size: 20px; margin-bottom: 4px;">{{ client.full_name }}</h3>
+            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px;">
+                {% if client.is_active %}
+                <span class="badge-status status-active">Activo</span>
+                {% else %}
+                <span class="badge-status status-expired">Inactivo</span>
+                {% endif %}
+            </p>
+            
+            <div style="text-align: left; background: var(--bg-body); padding: 16px; border-radius: 12px; margin-bottom: 24px;">
+                <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-id-card" style="color: var(--text-muted); width: 20px;"></i>
+                    <span style="font-size: 14px;">{{ client.ci }}</span>
+                </div>
+                <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-phone" style="color: var(--text-muted); width: 20px;"></i>
+                    <span style="font-size: 14px;">{{ client.phone }}</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-envelope" style="color: var(--text-muted); width: 20px;"></i>
+                    <span style="font-size: 14px;">{{ client.email|default:"Sin email" }}</span>
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div style="background: var(--bg-body); padding: 12px; border-radius: 12px;">
+                    <span style="display: block; font-size: 12px; color: var(--text-muted);">Altura</span>
+                    <span style="font-weight: 600;">{{ client.height_cm|default:"-" }} cm</span>
+                </div>
+                <div style="background: var(--bg-body); padding: 12px; border-radius: 12px;">
+                    <span style="display: block; font-size: 12px; color: var(--text-muted);">Peso</span>
+                    <span style="font-weight: 600;">{{ client.weight_kg|default:"-" }} kg</span>
+                </div>
+                <div style="background: var(--bg-body); padding: 12px; border-radius: 12px; grid-column: span 2;">
+                    <span style="display: block; font-size: 12px; color: var(--text-muted);">IMC</span>
+                    <span style="font-weight: 600; color: var(--color-success);">{{ client.bmi|default:"-" }}</span>
+                </div>
+            </div>
+
+            <div style="margin-top: 32px; display: flex; flex-direction: column; gap: 12px;">
+                <a href="{% url 'client_edit' client.id %}" class="btn btn-primary" style="justify-content: center;">
+                    <i class="fas fa-edit"></i> Editar perfil
+                </a>
+                <form action="{% url 'client_delete' client.id %}" method="POST" onsubmit="return confirm('¿Estás seguro de eliminar este cliente?')">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-secondary" style="width: 100%; justify-content: center; color: var(--color-danger);">
+                        <i class="fas fa-trash"></i> Eliminar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Columna Derecha: Historial y Detalles -->
+    <div class="grid-right">
+        <!-- Membresía Actual -->
+        <div class="card" style="margin-bottom: 24px;">
+            <div class="card-header">
+                <h3 class="card-title">Membresía Actual</h3>
+                <a href="{% url 'membership_for_client' client.id %}" class="btn btn-primary btn-sm">Renovar</a>
+            </div>
+            <div class="card-body">
+                {% with current=memberships.first %}
+                {% if current %}
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <h4 style="font-size: 18px; margin-bottom: 4px;">{{ current.plan.name }}</h4>
+                        <p style="color: var(--text-muted); font-size: 14px;">Inició el {{ current.start_date|date:"d/m/Y" }}</p>
+                    </div>
+                    <div style="text-align: right;">
+                        <span class="badge-status {% if current.status == 'Activa' %}status-active{% else %}status-expired{% endif %}" style="font-size: 14px;">
+                            {{ current.status }}
+                        </span>
+                        <p style="margin-top: 8px; font-weight: 600;">Vence: {{ current.end_date|date:"d/m/Y" }}</p>
+                    </div>
+                </div>
+                {% else %}
+                <p style="text-align: center; color: var(--text-muted); padding: 20px;">Este cliente no tiene membresías activas.</p>
+                {% endif %}
+                {% endwith %}
+            </div>
+        </div>
+
+        <!-- Historial de Pagos -->
+        <div class="card" style="margin-bottom: 24px;">
+            <div class="card-header">
+                <h3 class="card-title">Historial de Pagos</h3>
+            </div>
+            <div class="card-body" style="padding: 0;">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Monto</th>
+                                <th>Método</th>
+                                <th>Recibo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for payment in payments %}
+                            <tr>
+                                <td>{{ payment.date|date:"d/m/Y" }}</td>
+                                <td style="font-weight: 600;">${{ payment.amount }}</td>
+                                <td>{{ payment.method }}</td>
+                                <td><span style="font-family: monospace;">{{ payment.receipt_code }}</span></td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" style="text-align: center; padding: 20px; color: var(--text-muted);">Sin pagos registrados.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Historial Físico -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Seguimiento Físico</h3>
+            </div>
+            <div class="card-body">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Peso</th>
+                                <th>Altura</th>
+                                <th>IMC</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in physical_history_rows %}
+                            <tr>
+                                <td>{{ row.item.date|date:"d/m/Y" }}</td>
+                                <td>{{ row.item.weight_kg }} kg</td>
+                                <td>{{ row.item.height_cm }} cm</td>
+                                <td style="color: var(--color-success); font-weight: 600;">
+                                    {{ row.bmi|default:"-" }}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" style="text-align: center; padding: 20px; color: var(--text-muted);">Sin historial registrado.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

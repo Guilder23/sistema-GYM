@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block title %}Rutinas - GYM PRO{% endblock %}
+{% block page_title %}RUTINAS DE ENTRENAMIENTO{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <div style="display: flex; gap: 16px; align-items: center; flex: 1;">
+            <div class="search-bar" style="width: 300px;">
+                <form action="" method="GET" style="display: flex; width: 100%; align-items: center; gap: 10px;">
+                    <i class="fas fa-search"></i>
+                    <input type="text" name="q" placeholder="Buscar rutina o cliente...">
+                </form>
+            </div>
+        </div>
+        <a href="{% url 'routine_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Nueva rutina
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rutina</th>
+                        <th>Cliente</th>
+                        <th>Fecha Creación</th>
+                        <th>Ejercicios</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for routine in routines %}
+                    <tr>
+                        <td>
+                            <div style="font-weight: 600;">{{ routine.name }}</div>
+                            <div style="font-size: 12px; color: var(--text-muted);">{{ routine.notes|truncatechars:50 }}</div>
+                        </td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <img src="https://ui-avatars.com/api/?name={{ routine.client.full_name }}&background=random" style="width: 24px; height: 24px; border-radius: 6px;">
+                                <span>{{ routine.client.full_name }}</span>
+                            </div>
+                        </td>
+                        <td>{{ routine.created_at|date:"d/m/Y" }}</td>
+                        <td>{{ routine.routine_exercises.count }}</td>
+                        <td>
+                            <div style="display: flex; gap: 8px;">
+                                <a href="{% url 'routine_detail' routine.id %}" class="btn btn-secondary btn-sm" title="Ver detalles">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="#" class="btn btn-secondary btn-sm" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 48px; color: var(--text-muted);">
+                            <i class="fas fa-clipboard-list" style="font-size: 48px; margin-bottom: 16px; display: block;"></i>
+                            No hay rutinas registradas.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Membresías - GYM SYSTEM{% endblock %}
+{% block page_title %}Planes de Membresía{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/memberships/plan_list.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <div>
+            <h3 class="card-title">Planes de Membresía</h3>
+            <p class="muted">Administra los planes disponibles (mensual, semanal, anual, etc.).</p>
+        </div>
+        <a href="{% url 'plan_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Nuevo plan
+        </a>
+    </div>
+    <div class="card-body" style="padding: 0;">
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Plan</th>
+                        <th>Duración</th>
+                        <th>Precio</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for plan in plans %}
+                    <tr>
+                        <td>
+                            <div class="plan-title">{{ plan.name }}</div>
+                            {% if plan.description %}
+                            <div class="plan-desc">{{ plan.description }}</div>
+                            {% endif %}
+                        </td>
+                        <td>{{ plan.duration_days }} días</td>
+                        <td style="font-weight: 600;">${{ plan.price }}</td>
+                        <td>
+                            {% if plan.active %}
+                            <span class="badge-status status-active">Activo</span>
+                            {% else %}
+                            <span class="badge-status status-expired">Inactivo</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" style="text-align: center; padding: 48px; color: var(--text-muted);">
+                            <i class="fas fa-id-card" style="font-size: 40px; margin-bottom: 14px; display: block;"></i>
+                            Aún no tienes planes registrados.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/memberships/plan_list.js' %}"></script>
+{% endblock %}

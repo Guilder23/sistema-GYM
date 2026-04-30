@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+{% block title %}Panel de Control - GYM PRO{% endblock %}
+{% block page_title %}PANEL DE CONTROL (Dashboard){% endblock %}
+
+{% block content %}
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon" style="background: rgba(99, 102, 241, 0.1); color: #6366f1;">
+            <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-info">
+            <span class="stat-label">Clientes activos</span>
+            <span class="stat-value">{{ active_clients }}</span>
+            <div class="stat-trend trend-up">
+                <i class="fas fa-arrow-up"></i> 12% más que el mes anterior
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+            <i class="fas fa-dollar-sign"></i>
+        </div>
+        <div class="stat-info">
+            <span class="stat-label">Ingresos del mes</span>
+            <span class="stat-value">${{ total_income|default:"0.00" }}</span>
+            <div class="stat-trend trend-up">
+                <i class="fas fa-arrow-up"></i> 8% más que el mes anterior
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+            <i class="fas fa-id-card"></i>
+        </div>
+        <div class="stat-info">
+            <span class="stat-label">Membresías activas</span>
+            <span class="stat-value">{{ active_memberships_count }}</span>
+            <div class="stat-trend trend-up">
+                <i class="fas fa-arrow-up"></i> 5% más que el mes anterior
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon" style="background: rgba(14, 165, 233, 0.1); color: #0ea5e9;">
+            <i class="fas fa-calendar-check"></i>
+        </div>
+        <div class="stat-info">
+            <span class="stat-label">Asistencias hoy</span>
+            <span class="stat-value">{{ today_attendance_count|default:"0" }}</span>
+            <div class="stat-trend trend-down">
+                <i class="fas fa-arrow-down"></i> 2% menos que ayer
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <div class="grid-left">
+        <div class="card" style="margin-bottom: 24px;">
+            <div class="card-header">
+                <h3 class="card-title">Accesos hoy</h3>
+                <a href="{% url 'access_panel' %}" class="btn btn-secondary btn-sm">Ver todos</a>
+            </div>
+            <div class="card-body">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Cliente</th>
+                                <th>Hora</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for access in recent_access %}
+                            <tr>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <img src="https://ui-avatars.com/api/?name={{ access.client.full_name }}&background=random" style="width: 32px; height: 32px; border-radius: 8px;">
+                                        <span>{{ access.client.full_name }}</span>
+                                    </div>
+                                </td>
+                                <td>{{ access.timestamp|date:"H:i A" }}</td>
+                                <td><span class="badge-status status-active">Entrada</span></td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="3" style="text-align: center; color: var(--text-muted); padding: 32px;">No hay accesos registrados hoy</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Ingresos (este mes)</h3>
+            </div>
+            <div class="card-body">
+                <canvas id="incomeChart" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid-right">
+        <div class="card" style="margin-bottom: 24px;">
+            <div class="card-header">
+                <h3 class="card-title">Próximas clases</h3>
+            </div>
+            <div class="card-body" style="padding: 0;">
+                {% for class in upcoming_classes %}
+                <div style="padding: 16px 24px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 16px;">
+                    <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(99, 102, 241, 0.1); color: #6366f1; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                        <i class="fas fa-{% if 'Spinning' in class.class_type.name %}bicycle{% elif 'Zumba' in class.class_type.name %}music{% else %}dumbbell{% endif %}"></i>
+                    </div>
+                    <div style="flex: 1;">
+                        <h5 style="font-size: 14px; margin-bottom: 2px;">{{ class.class_type.name }}</h5>
+                        <p style="font-size: 12px; color: var(--text-muted);">Con {{ class.trainer.full_name|default:"Entrenador" }}</p>
+                    </div>
+                    <div style="text-align: right;">
+                        <span style="font-size: 14px; font-weight: 600; display: block;">{{ class.start_time|time:"H:i A" }}</span>
+                        <span style="font-size: 12px; color: var(--text-muted);">{{ class.available_spots }} cupos</span>
+                    </div>
+                </div>
+                {% empty %}
+                <div style="padding: 32px; text-align: center; color: var(--text-muted);">No hay clases programadas</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="card" style="margin-bottom: 24px;">
+            <div class="card-header">
+                <h3 class="card-title">Notificaciones Recientes</h3>
+                <a href="{% url 'notification_list' %}" class="btn btn-secondary btn-sm">Ver todas</a>
+            </div>
+            <div class="card-body" style="padding: 0;">
+                {% for notification in notifications %}
+                <div style="padding: 12px 24px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(99, 102, 241, 0.1); color: #6366f1; display: flex; align-items: center; justify-content: center; font-size: 14px;">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <div style="flex: 1;">
+                        <h6 style="font-size: 13px; margin-bottom: 2px;">{{ notification.title }}</h6>
+                        <p style="font-size: 11px; color: var(--text-muted);">{{ notification.created_at|timesince }}</p>
+                    </div>
+                </div>
+                {% empty %}
+                <div style="padding: 24px; text-align: center; color: var(--text-muted); font-size: 13px;">Sin notificaciones nuevas</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Membresías por vencer</h3>
+            </div>
+            <div class="card-body">
+                <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 16px;">12 membresías vencen en los próximos 7 días.</p>
+                <a href="#" class="btn btn-primary" style="width: 100%; justify-content: center;">Ver detalles</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('incomeChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['1', '5', '10', '15', '20', '25', '30'],
+            datasets: [{
+                label: 'Ingresos ($)',
+                data: [1200, 1900, 1500, 2500, 2200, 3000, 2800],
+                borderColor: '#6366f1',
+                backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 4,
+                pointBackgroundColor: '#6366f1'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                    ticks: { color: '#94a3b8' }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: { color: '#94a3b8' }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

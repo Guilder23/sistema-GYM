@@ -1,0 +1,81 @@
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <a href="{% url 'dashboard' %}" class="logo">
+            <i class="fas fa-dumbbell"></i>
+            <span>GYM PRO</span>
+        </a>
+    </div>
+
+    <nav class="sidebar-nav">
+        <a href="{% url 'dashboard' %}" class="nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+            <i class="fas fa-grid-2"></i>
+            <span>Panel de Control</span>
+        </a>
+
+        <a href="{% url 'client_list' %}" class="nav-item {% if 'client' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="fas fa-users"></i>
+            <span>Clientes</span>
+        </a>
+
+        <a href="{% url 'plan_list' %}" class="nav-item {% if 'plan' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="fas fa-id-card"></i>
+            <span>Membresías</span>
+        </a>
+
+        <a href="{% url 'payment_list' %}" class="nav-item {% if 'payment' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="fas fa-money-bill-wave"></i>
+            <span>Pagos</span>
+        </a>
+
+        <a href="{% url 'access_panel' %}" class="nav-item {% if 'access' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="fas fa-fingerprint"></i>
+            <span>Control de Acceso</span>
+        </a>
+
+        <a href="{% url 'routine_list' %}" class="nav-item {% if 'routine' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="fas fa-clipboard-list"></i>
+            <span>Rutinas</span>
+        </a>
+
+        <a href="{% url 'trainers:list' %}" class="nav-item {% if 'trainers' in request.resolver_match.app_name %}active{% endif %}">
+            <i class="fas fa-user-tie"></i>
+            <span>Entrenadores</span>
+        </a>
+
+        <a href="{% url 'reservation_list' %}" class="nav-item {% if 'reservation' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="fas fa-calendar-check"></i>
+            <span>Clases y Reservas</span>
+        </a>
+
+        <a href="{% url 'product_list' %}" class="nav-item {% if 'product' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="fas fa-boxes-stacked"></i>
+            <span>Inventario</span>
+        </a>
+
+        <a href="{% url 'reports_dashboard' %}" class="nav-item {% if 'reports' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="fas fa-chart-pie"></i>
+            <span>Reportes</span>
+        </a>
+
+        <a href="{% url 'notification_list' %}" class="nav-item {% if 'notification' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="fas fa-bell"></i>
+            <span>Notificaciones</span>
+        </a>
+
+        <a href="{% url 'system_settings' %}" class="nav-item {% if 'system_settings' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="fas fa-gear"></i>
+            <span>Configuración</span>
+        </a>
+    </nav>
+
+    <div class="sidebar-footer">
+        <div class="user-profile">
+            <img src="https://ui-avatars.com/api/?name={{ request.user.get_full_name|default:request.user.username }}&background=6366f1&color=fff" alt="User" class="user-avatar">
+            <div class="user-info">
+                <span class="user-name">{{ request.user.get_full_name|default:request.user.username }}</span>
+                <span class="user-role">Administrador</span>
+            </div>
+            <a href="{% url 'logout' %}" title="Cerrar Sesión" style="color: var(--text-muted);"><i class="fas fa-sign-out-alt"></i></a>
+        </div>
+    </div>
+</aside>

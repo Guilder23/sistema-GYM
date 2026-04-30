@@ -1,0 +1,15 @@
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.product_list, name='product_list'),
+    path('nuevo/', views.product_create, name='product_create'),
+    path('editar/<int:product_id>/', views.product_edit, name='product_edit'),
+    path('ventas/', views.sale_list, name='sale_list'),
+    # Carrito
+    path('carrito/', views.cart_detail, name='cart_detail'),
+    path('carrito/añadir/<int:product_id>/', views.cart_add, name='cart_add'),
+    path('carrito/eliminar/<int:product_id>/', views.cart_remove, name='cart_remove'),
+    path('carrito/limpiar/', views.cart_clear, name='cart_clear'),
+    path('carrito/checkout/', views.cart_checkout, name='cart_checkout'),
+]

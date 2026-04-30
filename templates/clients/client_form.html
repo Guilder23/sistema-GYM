@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block title %}{% if client %}Editar{% else %}Nuevo{% endif %} Cliente - GYM PRO{% endblock %}
+{% block page_title %}{% if client %}EDITAR{% else %}NUEVO{% endif %} CLIENTE{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 800px; margin: 0 auto;">
+    <div class="card-header">
+        <h3 class="card-title">Información del Cliente</h3>
+        <a href="{% url 'client_list' %}" class="btn btn-secondary btn-sm">Cancelar</a>
+    </div>
+    <div class="card-body">
+        <form action="" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                <div class="form-group">
+                    <label>Nombre(s)</label>
+                    <input type="text" name="first_name" class="form-control" value="{{ client.first_name }}" required>
+                </div>
+                <div class="form-group">
+                    <label>Apellido(s)</label>
+                    <input type="text" name="last_name" class="form-control" value="{{ client.last_name }}" required>
+                </div>
+                <div class="form-group">
+                    <label>CI / DNI</label>
+                    <input type="text" name="ci" class="form-control" value="{{ client.ci }}" required>
+                </div>
+                <div class="form-group">
+                    <label>Teléfono</label>
+                    <input type="text" name="phone" class="form-control" value="{{ client.phone }}" required>
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>Email (opcional)</label>
+                    <input type="email" name="email" class="form-control" value="{{ client.email }}">
+                </div>
+                
+                <div class="form-group">
+                    <label>Altura (cm)</label>
+                    <input type="number" step="0.01" name="height_cm" class="form-control" value="{{ client.height_cm }}">
+                </div>
+                <div class="form-group">
+                    <label>Peso (kg)</label>
+                    <input type="number" step="0.01" name="weight_kg" class="form-control" value="{{ client.weight_kg }}">
+                </div>
+                
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>Foto de perfil</label>
+                    <input type="file" name="profile_photo" class="form-control" accept="image/*">
+                    {% if client.profile_photo %}
+                    <p style="font-size: 12px; margin-top: 8px; color: var(--text-muted);">Foto actual: {{ client.profile_photo.name }}</p>
+                    {% endif %}
+                </div>
+
+                {% if client %}
+                <div class="form-group" style="grid-column: span 2;">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <input type="checkbox" name="is_active" {% if client.is_active %}checked{% endif %}>
+                        <span>Cliente Activo</span>
+                    </label>
+                </div>
+                {% endif %}
+            </div>
+
+            <div style="margin-top: 32px; display: flex; justify-content: flex-end;">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Guardar Cliente
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

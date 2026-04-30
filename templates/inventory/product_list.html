@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% block title %}Inventario - GYM PRO{% endblock %}
+{% block page_title %}INVENTARIO DE PRODUCTOS{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <div style="display: flex; gap: 16px; align-items: center; flex: 1;">
+            <div class="search-bar" style="width: 300px;">
+                <form action="" method="GET" style="display: flex; width: 100%; align-items: center; gap: 10px;">
+                    <i class="fas fa-search"></i>
+                    <input type="text" name="q" value="{{ search_query }}" placeholder="Buscar producto...">
+                </form>
+            </div>
+        </div>
+        <a href="{% url 'product_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Nuevo producto
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Categoría</th>
+                        <th>Precio</th>
+                        <th>Stock</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                    <tr>
+                        <td>
+                            <div style="font-weight: 600;">{{ product.name }}</div>
+                            <div style="font-size: 12px; color: var(--text-muted);">{{ product.description|truncatechars:50 }}</div>
+                        </td>
+                        <td>{{ product.category.name|default:"General" }}</td>
+                        <td style="font-weight: 600;">${{ product.price }}</td>
+                        <td>
+                            <span style="font-weight: 600; {% if product.stock <= product.min_stock %}color: var(--color-danger);{% endif %}">
+                                {{ product.stock }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if product.stock > product.min_stock %}
+                            <span class="badge-status status-active">En Stock</span>
+                            {% elif product.stock > 0 %}
+                            <span class="badge-status" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">Bajo Stock</span>
+                            {% else %}
+                            <span class="badge-status status-expired">Agotado</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 8px;">
+                                <a href="{% url 'product_edit' product.id %}" class="btn btn-secondary btn-sm" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'cart_add' product.id %}" class="btn btn-secondary btn-sm" title="Añadir al Carrito" style="color: var(--color-success);">
+                                    <i class="fas fa-cart-plus"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 48px; color: var(--text-muted);">
+                            <i class="fas fa-boxes-stacked" style="font-size: 48px; margin-bottom: 16px; display: block;"></i>
+                            No se encontraron productos.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

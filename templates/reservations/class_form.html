@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block title %}Programar Clase - GYM PRO{% endblock %}
+{% block page_title %}PROGRAMAR CLASE{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 800px; margin: 0 auto;">
+    <div class="card-header">
+        <h3 class="card-title">Información de la Clase</h3>
+        <a href="{% url 'reservation_list' %}" class="btn btn-secondary btn-sm">Cancelar</a>
+    </div>
+    <div class="card-body">
+        <form action="" method="POST">
+            {% csrf_token %}
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                <div class="form-group">
+                    <label>Tipo de Clase</label>
+                    <select name="type_id" class="form-control" required>
+                        <option value="">Seleccionar tipo</option>
+                        {% for type in class_types %}
+                        <option value="{{ type.id }}">{{ type.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Entrenador</label>
+                    <select name="trainer_id" class="form-control">
+                        <option value="">Sin entrenador</option>
+                        {% for trainer in trainers %}
+                        <option value="{{ trainer.id }}">{{ trainer.full_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Fecha</label>
+                    <input type="date" name="date" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Capacidad Máxima</label>
+                    <input type="number" name="capacity" class="form-control" value="12" min="1" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Hora de Inicio</label>
+                    <input type="time" name="start_time" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Hora de Fin</label>
+                    <input type="time" name="end_time" class="form-control" required>
+                </div>
+            </div>
+
+            <div style="margin-top: 32px; display: flex; justify-content: flex-end;">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Programar Clase
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

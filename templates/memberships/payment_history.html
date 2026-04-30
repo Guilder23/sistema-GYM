@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Pagos - GYM SYSTEM{% endblock %}
+{% block page_title %}Pagos{% endblock %}
+
+{% block extra_css %}
+<link rel=" + ""stylesheet" href="{% static 'css/memberships/payment_history.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <div>
+            <h3 class="card-title">Historial de Pagos</h3>
+            <p class="muted">Registros de pagos y recibos.</p>
+        </div>
+        <a href="{% url 'payment_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Registrar pago
+        </a>
+    </div>
+
+    <div class="card-body" style="padding: 0;">
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Cliente</th>
+                        <th>Monto</th>
+                        <th>Método</th>
+                        <th>Recibo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payment in payments %}
+                    <tr>
+                        <td>{{ payment.date|date:"d/m/Y H:i" }}</td>
+                        <td>{{ payment.client.full_name }}</td>
+                        <td style="font-weight: 600;">${{ payment.amount }}</td>
+                        <td>{{ payment.get_method_display }}</td>
+                        <td><span class="mono">{{ payment.receipt_code|default:"-" }}</span></td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 48px; color: var(--text-muted);">
+                            <i class="fas fa-money-bill-wave" style="font-size: 40px; margin-bottom: 14px; display: block;"></i>
+                            Aún no hay pagos registrados.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/memberships/payment_history.js' %}"></script>
+{% endblock %}

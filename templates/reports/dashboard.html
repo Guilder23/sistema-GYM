@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block title %}Reportes - GYM PRO{% endblock %}
+{% block page_title %}REPORTES Y ESTADÍSTICAS{% endblock %}
+
+{% block content %}
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+            <i class="fas fa-hand-holding-dollar"></i>
+        </div>
+        <div class="stat-info">
+            <span class="stat-label">Ingresos (Últimos 30 días)</span>
+            <span class="stat-value">${{ total_revenue_month }}</span>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background: rgba(99, 102, 241, 0.1); color: #6366f1;">
+            <i class="fas fa-users-check"></i>
+        </div>
+        <div class="stat-info">
+            <span class="stat-label">Clientes Activos</span>
+            <span class="stat-value">{{ active_clients }}</span>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background: rgba(14, 165, 233, 0.1); color: #0ea5e9;">
+            <i class="fas fa-fingerprint"></i>
+        </div>
+        <div class="stat-info">
+            <span class="stat-label">Accesos Hoy</span>
+            <span class="stat-value">{{ today_access }}</span>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <div class="grid-left">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Distribución de Clientes</h3>
+            </div>
+            <div class="card-body">
+                <div style="height: 300px; display: flex; align-items: center; justify-content: center; background: var(--bg-body); border-radius: 12px;">
+                    <p style="color: var(--text-muted); text-align: center; padding: 20px;">
+                        <i class="fas fa-chart-pie" style="font-size: 40px; margin-bottom: 12px; display: block;"></i>
+                        Activos: {{ active_clients }} | Inactivos: {{ inactive_clients }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="grid-right">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Exportar Datos</h3>
+            </div>
+            <div class="card-body">
+                <div style="display: grid; gap: 12px;">
+                    <a href="#" class="btn btn-secondary" style="justify-content: center;">
+                        <i class="fas fa-file-excel"></i> Exportar Clientes (Excel)
+                    </a>
+                    <a href="#" class="btn btn-secondary" style="justify-content: center;">
+                        <i class="fas fa-file-pdf"></i> Reporte de Pagos Mensual (PDF)
+                    </a>
+                    <a href="#" class="btn btn-secondary" style="justify-content: center;">
+                        <i class="fas fa-file-csv"></i> Historial de Accesos (CSV)
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

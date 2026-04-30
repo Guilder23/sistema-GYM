@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% block title %}Clientes - GYM PRO{% endblock %}
+{% block page_title %}CLIENTES{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <div style="display: flex; gap: 16px; align-items: center; flex: 1;">
+            <div class="search-bar" style="width: 300px;">
+                <form action="" method="GET" style="display: flex; width: 100%; align-items: center; gap: 10px;">
+                    <i class="fas fa-search"></i>
+                    <input type="text" name="q" value="{{ search_query }}" placeholder="Buscar cliente...">
+                </form>
+            </div>
+            <div class="filter-group">
+                <form action="" method="GET" id="filterForm">
+                    <select name="status" class="form-control" style="width: 150px; padding: 8px;" onchange="document.getElementById('filterForm').submit()">
+                        <option value="todos" {% if status_filter == 'todos' %}selected{% endif %}>Todos los estados</option>
+                        <option value="activos" {% if status_filter == 'activos' %}selected{% endif %}>Activos</option>
+                        <option value="inactivos" {% if status_filter == 'inactivos' %}selected{% endif %}>Inactivos</option>
+                    </select>
+                    {% if search_query %}<input type="hidden" name="q" value="{{ search_query }}">{% endif %}
+                </form>
+            </div>
+        </div>
+        <a href="{% url 'client_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Nuevo cliente
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Cliente</th>
+                        <th>CI/DNI</th>
+                        <th>Membresía</th>
+                        <th>Estado</th>
+                        <th>Registro</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for client in clients %}
+                    <tr>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                {% if client.profile_photo %}
+                                <img src="{{ client.profile_photo.url }}" style="width: 40px; height: 40px; border-radius: 10px; object-fit: cover;">
+                                {% else %}
+                                <img src="https://ui-avatars.com/api/?name={{ client.full_name }}&background=6366f1&color=fff" style="width: 40px; height: 40px; border-radius: 10px;">
+                                {% endif %}
+                                <div>
+                                    <div style="font-weight: 600;">{{ client.full_name }}</div>
+                                    <div style="font-size: 12px; color: var(--text-muted);">{{ client.phone }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ client.ci }}</td>
+                        <td>
+                            {% with active_membership=client.memberships.first %}
+                                {% if active_membership %}
+                                    {{ active_membership.plan.name }}
+                                {% else %}
+                                    <span style="color: var(--text-muted);">Sin plan</span>
+                                {% endif %}
+                            {% endwith %}
+                        </td>
+                        <td>
+                            {% if client.is_active %}
+                            <span class="badge-status status-active">Activo</span>
+                            {% else %}
+                            <span class="badge-status status-expired">Inactivo</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ client.join_date|date:"d/m/Y" }}</td>
+                        <td>
+                            <div style="display: flex; gap: 8px;">
+                                <a href="{% url 'client_detail' client.id %}" class="btn btn-secondary btn-sm" title="Ver perfil">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'client_edit' client.id %}" class="btn btn-secondary btn-sm" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 48px; color: var(--text-muted);">
+                            <i class="fas fa-users" style="font-size: 48px; margin-bottom: 16px; display: block;"></i>
+                            No se encontraron clientes.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

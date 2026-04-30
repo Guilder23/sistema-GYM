@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}Entrenadores - GYM PRO{% endblock %}
+{% block page_title %}ENTRENADORES{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Equipo de Entrenadores</h3>
+        <a href="{% url 'trainers:create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Nuevo entrenador
+        </a>
+    </div>
+    <div class="card-body">
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px;">
+            {% for trainer in trainers %}
+            <div class="card" style="border: 1px solid var(--border-color); padding: 24px; text-align: center; position: relative;">
+                <a href="{% url 'trainers:edit' trainer.id %}" style="position: absolute; top: 16px; right: 16px; color: var(--text-muted);" title="Editar">
+                    <i class="fas fa-edit"></i>
+                </a>
+                <img src="https://ui-avatars.com/api/?name={{ trainer.full_name }}&background=6366f1&color=fff&size=100" style="width: 80px; height: 80px; border-radius: 50%; margin-bottom: 16px;">
+                <h4 style="margin-bottom: 4px;">{{ trainer.full_name }}</h4>
+                <p style="color: var(--color-primary); font-size: 14px; font-weight: 600; margin-bottom: 12px;">{{ trainer.specialty }}</p>
+                <div style="font-size: 13px; color: var(--text-muted); text-align: left; margin-top: 16px; border-top: 1px solid var(--border-color); padding-top: 16px;">
+                    <p><i class="fas fa-phone" style="width: 20px;"></i> {{ trainer.phone }}</p>
+                    <p><i class="fas fa-envelope" style="width: 20px;"></i> {{ trainer.email }}</p>
+                </div>
+            </div>
+            {% empty %}
+            <div style="grid-column: 1 / -1; text-align: center; padding: 48px; color: var(--text-muted);">
+                <i class="fas fa-user-tie" style="font-size: 48px; margin-bottom: 16px; display: block;"></i>
+                No hay entrenadores registrados.
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
