@@ -53,6 +53,7 @@
             </div>
 
             <div style="margin-top: 32px; display: flex; flex-direction: column; gap: 12px;">
+                {% if request.user.profile.role == 'ADMIN' or request.user.profile.role == 'RECEPCIONISTA' %}
                 <a href="{% url 'client_edit' client.id %}" class="btn btn-primary" style="justify-content: center;">
                     <i class="fas fa-edit"></i> Editar perfil
                 </a>
@@ -62,6 +63,7 @@
                         <i class="fas fa-trash"></i> Eliminar
                     </button>
                 </form>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -72,7 +74,9 @@
         <div class="card" style="margin-bottom: 24px;">
             <div class="card-header">
                 <h3 class="card-title">Membresía Actual</h3>
+                {% if request.user.profile.role == 'ADMIN' or request.user.profile.role == 'RECEPCIONISTA' %}
                 <a href="{% url 'membership_for_client' client.id %}" class="btn btn-primary btn-sm">Renovar</a>
+                {% endif %}
             </div>
             <div class="card-body">
                 {% with current=memberships.first %}

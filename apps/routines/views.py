@@ -33,7 +33,10 @@ def routine_create(request):
     linked_trainer = get_linked_trainer(request.user)
 
     if current_role == UserProfile.ROLE_TRAINER:
-        clients = clients.filter(trainer=linked_trainer)
+        # Un entrenador puede ver sus alumnos asignados Y alumnos que no tienen entrenador
+        clients = clients.filter(
+            models.Q(trainer=linked_trainer) | models.Q(trainer__isnull=True)
+        ).distinct()
         trainers = trainers.filter(id=linked_trainer.id if linked_trainer else None)
     
     if request.method == 'POST':
@@ -46,6 +49,10 @@ def routine_create(request):
         trainer = None
         if current_role == UserProfile.ROLE_TRAINER:
             trainer = linked_trainer
+            # Si el cliente no tiene entrenador, se le asigna automáticamente este entrenador
+            if not client.trainer:
+                client.trainer = linked_trainer
+                client.save(update_fields=['trainer'])
         elif trainer_id:
             trainer = get_object_or_404(Trainer, id=trainer_id)
             
@@ -70,7 +77,10 @@ def routine_edit(request, routine_id):
     linked_trainer = get_linked_trainer(request.user)
 
     if current_role == UserProfile.ROLE_TRAINER:
-        clients = clients.filter(trainer=linked_trainer)
+        # Un entrenador puede ver sus alumnos asignados Y alumnos que no tienen entrenador
+        clients = clients.filter(
+            models.Q(trainer=linked_trainer) | models.Q(trainer__isnull=True)
+        ).distinct()
         trainers = trainers.filter(id=linked_trainer.id if linked_trainer else None)
 
     routine_queryset = Routine.objects.all()
@@ -92,6 +102,10 @@ def routine_edit(request, routine_id):
         trainer = None
         if current_role == UserProfile.ROLE_TRAINER:
             trainer = linked_trainer
+            # Si el cliente no tiene entrenador, se le asigna automáticamente este entrenador
+            if not client.trainer:
+                client.trainer = linked_trainer
+                client.save(update_fields=['trainer'])
         elif trainer_id:
             trainer = get_object_or_404(Trainer, id=trainer_id)
 

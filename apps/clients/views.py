@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.db import models
 from decimal import Decimal, InvalidOperation
+from apps.trainers.models import Trainer
 from apps.clients.models import Client, PhysicalDataHistory
 from apps.memberships.models import Membership, Payment
 from apps.access.models import AccessRecord
@@ -50,6 +51,7 @@ def client_list(request):
 
 @role_required(UserProfile.ROLE_ADMIN, UserProfile.ROLE_RECEPTION)
 def client_create(request):
+    trainers = Trainer.objects.filter(active=True).order_by('full_name')
     if request.method == 'POST':
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
@@ -58,12 +60,17 @@ def client_create(request):
         email = request.POST.get('email')
         height_cm = request.POST.get('height_cm')
         weight_kg = request.POST.get('weight_kg')
+        trainer_id = request.POST.get('trainer_id')
         profile_photo = request.FILES.get('profile_photo')
         
         # Handle empty strings for numeric fields
         height_cm = height_cm if height_cm else None
         weight_kg = weight_kg if weight_kg else None
         
+        trainer = None
+        if trainer_id:
+            trainer = get_object_or_404(Trainer, id=trainer_id)
+            
         try:
             client = Client.objects.create(
                 first_name=first_name,
@@ -73,6 +80,7 @@ def client_create(request):
                 email=email,
                 height_cm=height_cm,
                 weight_kg=weight_kg,
+                trainer=trainer,
                 profile_photo=profile_photo
             )
             
@@ -87,14 +95,15 @@ def client_create(request):
             return redirect('client_detail', client_id=client.id)
         except Exception as e:
             messages.error(request, f'Error al registrar cliente: {e}')
-            return render(request, 'clients/client_form.html')
+            return render(request, 'clients/client_form.html', {'trainers': trainers})
     
-    return render(request, 'clients/client_form.html')
+    return render(request, 'clients/client_form.html', {'trainers': trainers})
 
 
 @role_required(UserProfile.ROLE_ADMIN, UserProfile.ROLE_RECEPTION)
 def client_edit(request, client_id):
     client = get_object_or_404(Client, id=client_id)
+    trainers = Trainer.objects.filter(active=True).order_by('full_name')
     if request.method == 'POST':
         client.first_name = request.POST.get('first_name')
         client.last_name = request.POST.get('last_name')
@@ -102,6 +111,12 @@ def client_edit(request, client_id):
         client.phone = request.POST.get('phone')
         client.email = request.POST.get('email')
         
+        trainer_id = request.POST.get('trainer_id')
+        if trainer_id:
+            client.trainer = get_object_or_404(Trainer, id=trainer_id)
+        else:
+            client.trainer = None
+            
         new_height = request.POST.get('height_cm')
         new_weight = request.POST.get('weight_kg')
         
@@ -129,7 +144,7 @@ def client_edit(request, client_id):
         messages.success(request, 'Cliente actualizado correctamente.')
         return redirect('client_detail', client_id=client.id)
     
-    return render(request, 'clients/client_form.html', {'client': client})
+    return render(request, 'clients/client_form.html', {'client': client, 'trainers': trainers})
 
 
 @role_required(UserProfile.ROLE_ADMIN, UserProfile.ROLE_RECEPTION, UserProfile.ROLE_TRAINER, UserProfile.ROLE_CLIENT)
