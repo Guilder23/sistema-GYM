@@ -50,7 +50,7 @@
 
                 <div class="detail-block">
                     <h3>Detalles del Pago</h3>
-                    <p><span>Monto:</span> <strong>${{ payment.amount }}</strong></p>
+                    <p><span>Monto:</span> <strong> Bs{{ payment.amount }}</strong></p>
                     <p><span>Método:</span> {{ payment.get_method_display }}</p>
                     {% if payment.membership %}
                     <p><span>Plan:</span> {{ payment.membership.plan.name }}</p>

@@ -23,7 +23,7 @@
         </div>
         <div class="stat-info">
             <span class="stat-label">Recaudación hoy</span>
-            <span class="stat-value">${{ today_income|default:"0.00" }}</span>
+            <span class="stat-value"> Bs{{ today_income|default:"0.00" }}</span>
             <div class="stat-trend trend-up">
                 <i class="fas fa-money-bill-wave"></i> Cobros del día
             </div>
@@ -122,7 +122,7 @@
                             {% for payment in last_payments %}
                             <tr>
                                 <td>{{ payment.membership.client.full_name }}</td>
-                                <td>${{ payment.amount }}</td>
+                                <td> Bs{{ payment.amount }}</td>
                                 <td>{{ payment.date|date:"d/m/Y H:i" }}</td>
                             </tr>
                             {% empty %}

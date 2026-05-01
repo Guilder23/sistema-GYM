@@ -102,7 +102,7 @@
                             {% for payment in latest_payments %}
                             <tr>
                                 <td>{{ payment.membership.plan.name }}</td>
-                                <td>${{ payment.amount }}</td>
+                                <td> Bs{{ payment.amount }}</td>
                                 <td>{{ payment.date|date:"d/m/Y" }}</td>
                             </tr>
                             {% empty %}

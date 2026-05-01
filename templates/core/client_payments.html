@@ -24,7 +24,7 @@
                     <tr>
                         <td>{{ payment.date|date:"d/m/Y H:i" }}</td>
                         <td>{{ payment.membership.plan.name }}</td>
-                        <td style="font-weight: 600;">${{ payment.amount }}</td>
+                        <td style="font-weight: 600;"> Bs{{ payment.amount }}</td>
                         <td>{{ payment.get_method_display }}</td>
                         <td>
                             {% if payment.receipt_code %}

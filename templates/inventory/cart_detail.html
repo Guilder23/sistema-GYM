@@ -26,9 +26,9 @@
                             {% for item in cart_items %}
                             <tr>
                                 <td><strong>{{ item.name }}</strong></td>
-                                <td>${{ item.price }}</td>
+                                <td> Bs{{ item.price }}</td>
                                 <td>{{ item.quantity }}</td>
-                                <td style="font-weight: 600;">${{ item.subtotal }}</td>
+                                <td style="font-weight: 600;"> Bs{{ item.subtotal }}</td>
                                 <td>
                                     <a href="{% url 'cart_remove' item.id %}" class="btn btn-secondary btn-sm" style="color: var(--color-danger);">
                                         <i class="fas fa-trash"></i>
@@ -58,7 +58,7 @@
             <div class="card-body">
                 <div style="margin-bottom: 24px; padding: 20px; background: var(--bg-body); border-radius: 12px; text-align: center;">
                     <span style="display: block; font-size: 14px; color: var(--text-muted); margin-bottom: 8px;">Total a Pagar</span>
-                    <span style="font-size: 32px; font-weight: 700; color: var(--color-success);">${{ total }}</span>
+                    <span style="font-size: 32px; font-weight: 700; color: var(--color-success);"> Bs{{ total }}</span>
                 </div>
 
                 <form action="{% url 'cart_checkout' %}" method="POST">

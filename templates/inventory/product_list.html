@@ -38,7 +38,7 @@
                             <div style="font-size: 12px; color: var(--text-muted);">{{ product.description|truncatechars:50 }}</div>
                         </td>
                         <td>{{ product.category.name|default:"General" }}</td>
-                        <td style="font-weight: 600;">${{ product.price }}</td>
+                        <td style="font-weight: 600;"> Bs{{ product.price }}</td>
                         <td>
                             <span style="font-weight: 600; {% if product.stock <= product.min_stock %}color: var(--color-danger);{% endif %}">
                                 {{ product.stock }}

@@ -27,7 +27,7 @@
                     <select name="plan_id" class="form-control" required>
                         <option value="">Seleccionar plan</option>
                         {% for plan in plans %}
-                        <option value="{{ plan.id }}">{{ plan.name }} ({{ plan.duration_days }} días) - ${{ plan.price }}</option>
+                        <option value="{{ plan.id }}">{{ plan.name }} ({{ plan.duration_days }} días) -  Bs{{ plan.price }}</option>
                         {% endfor %}
                     </select>
                 </div>

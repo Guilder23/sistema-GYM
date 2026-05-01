@@ -23,7 +23,7 @@
         </div>
         <div class="stat-info">
             <span class="stat-label">Ingresos del mes</span>
-            <span class="stat-value">${{ total_income|default:"0.00" }}</span>
+            <span class="stat-value"> Bs{{ total_income|default:"0.00" }}</span>
             <div class="stat-trend trend-up">
                 <i class="fas fa-arrow-up"></i> 8% más que el mes anterior
             </div>
@@ -177,7 +177,7 @@
         data: {
             labels: ['1', '5', '10', '15', '20', '25', '30'],
             datasets: [{
-                label: 'Ingresos ($)',
+                label: 'Ingresos ( Bs)',
                 data: [1200, 1900, 1500, 2500, 2200, 3000, 2800],
                 borderColor: '#6366f1',
                 backgroundColor: 'rgba(99, 102, 241, 0.1)',

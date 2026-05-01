@@ -120,7 +120,7 @@
                             {% for payment in payments %}
                             <tr>
                                 <td>{{ payment.date|date:"d/m/Y" }}</td>
-                                <td style="font-weight: 600;">${{ payment.amount }}</td>
+                                <td style="font-weight: 600;"> Bs{{ payment.amount }}</td>
                                 <td>{{ payment.method }}</td>
                                 <td><span style="font-family: monospace;">{{ payment.receipt_code }}</span></td>
                             </tr>
