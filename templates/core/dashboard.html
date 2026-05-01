@@ -160,8 +160,8 @@
                 <h3 class="card-title">Membresías por vencer</h3>
             </div>
             <div class="card-body">
-                <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 16px;">12 membresías vencen en los próximos 7 días.</p>
-                <a href="#" class="btn btn-primary" style="width: 100%; justify-content: center;">Ver detalles</a>
+                <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 16px;">{{ expiring_memberships_count }} membresías vencen en los próximos 7 días.</p>
+                <a href="{% url 'expiring_memberships' %}" class="btn btn-primary" style="width: 100%; justify-content: center;">Ver detalles</a>
             </div>
         </div>
     </div>

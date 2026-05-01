@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}Control de Membresías - GYM PRO{% endblock %}
+{% block page_title %}CONTROL DE VENCIMIENTOS DE MEMBRESÍAS{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Listado de todos los vencimientos (Orden Cronológico)</h3>
+    </div>
+    <div class="card-body">
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Plan</th>
+                        <th>Inicio</th>
+                        <th>Vencimiento</th>
+                        <th>Días Restantes</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for membership in memberships %}
+                    <tr>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <img src="https://ui-avatars.com/api/?name={{ membership.client.full_name }}&background=random" style="width: 32px; height: 32px; border-radius: 8px;">
+                                <span>{{ membership.client.full_name }}</span>
+                            </div>
+                        </td>
+                        <td>{{ membership.plan.name }}</td>
+                        <td>{{ membership.start_date|date:"d/m/Y" }}</td>
+                        <td style="font-weight: 600; {% if membership.days_left <= 7 %}color: #ef4444;{% endif %}">{{ membership.end_date|date:"d/m/Y" }}</td>
+                        <td>
+                            {% if membership.days_left == 0 %}
+                                <span class="badge-status status-inactive">Vence hoy</span>
+                            {% elif membership.days_left == 1 %}
+                                <span style="color: #ef4444; font-weight: 600;">1 día</span>
+                            {% elif membership.days_left <= 7 %}
+                                <span style="color: #ef4444; font-weight: 600;">{{ membership.days_left }} días</span>
+                            {% else %}
+                                <span style="color: var(--text-muted);">{{ membership.days_left }} días</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 8px;">
+                                <a href="{% url 'membership_for_client' membership.client.id %}" class="btn btn-primary btn-sm" title="Renovar">
+                                    <i class="fas fa-sync-alt"></i> Renovar
+                                </a>
+                                <a href="{% url 'client_detail' membership.client.id %}" class="btn btn-secondary btn-sm" title="Ver Perfil">
+                                    <i class="fas fa-user"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 32px;">No hay membresías activas registradas.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

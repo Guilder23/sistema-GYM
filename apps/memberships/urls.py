@@ -8,4 +8,5 @@ urlpatterns = [
     path('pagos/registrar/', views.payment_create, name='payment_create'),
     path('pagos/<int:payment_id>/comprobante/', views.payment_receipt, name='payment_receipt'),
     path('asignar/<int:client_id>/', views.membership_for_client, name='membership_for_client'),
+    path('por-vencer/', views.expiring_memberships, name='expiring_memberships'),
 ]

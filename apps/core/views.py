@@ -60,6 +60,13 @@ def dashboard(request):
         total_income = Payment.objects.filter(date__date__gte=month_ago).aggregate(
             total=models.Sum('amount')
         )['total'] or 0
+        
+        expiring_memberships_count = Membership.objects.filter(
+            active=True,
+            end_date__gte=today,
+            end_date__lte=today + timedelta(days=7),
+        ).count()
+
         context = {
             'clients_count': Client.objects.count(),
             'active_memberships_count': Membership.objects.filter(
@@ -75,6 +82,7 @@ def dashboard(request):
             'inactive_clients': Client.objects.filter(is_active=False).count(),
             'total_income': total_income,
             'today_attendance_count': AccessRecord.objects.filter(timestamp__date=today, valid=True).count(),
+            'expiring_memberships_count': expiring_memberships_count,
         }
         return render(request, 'core/dashboard.html', context)
 

@@ -77,6 +77,26 @@ def membership_for_client(request, client_id):
 
 
 @role_required(UserProfile.ROLE_ADMIN, UserProfile.ROLE_RECEPTION)
+def expiring_memberships(request):
+    today = timezone.now().date()
+    # All active memberships ordered by expiration date
+    memberships = Membership.objects.filter(
+        active=True,
+        end_date__gte=today
+    ).select_related('client', 'plan').order_by('end_date')
+    
+    # Add remaining days to each membership object
+    for m in memberships:
+        m.days_left = (m.end_date - today).days
+
+    context = {
+        'memberships': memberships,
+        'today': today
+    }
+    return render(request, 'memberships/expiring_list.html', context)
+
+
+@role_required(UserProfile.ROLE_ADMIN, UserProfile.ROLE_RECEPTION)
 def payment_history(request):
     payments = Payment.objects.all().order_by('-date')
     context = {'payments': payments}
