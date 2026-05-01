@@ -38,7 +38,15 @@
                         <td>{{ payment.client.full_name }}</td>
                         <td style="font-weight: 600;">${{ payment.amount }}</td>
                         <td>{{ payment.get_method_display }}</td>
-                        <td><span class="mono">{{ payment.receipt_code|default:"-" }}</span></td>
+                        <td>
+                            {% if payment.receipt_code %}
+                            <a href="{% url 'payment_receipt' payment.id %}" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-file-invoice"></i> Ver
+                            </a>
+                            {% else %}
+                            <span class="mono">-</span>
+                            {% endif %}
+                        </td>
                     </tr>
                     {% empty %}
                     <tr>

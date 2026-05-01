@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Comprobante de Pago - GYM PRO{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/memberships/payment_receipt.css' %}">
+{% endblock %}
+{% block page_title %}COMPROBANTE DE PAGO{% endblock %}
+
+{% block content %}
+<div class="receipt-container">
+    <div class="receipt-card">
+        <div class="receipt-header">
+            <div class="receipt-brand">
+                <img src="{% static 'img/GYM.png' %}" alt="GYM PRO" class="receipt-logo">
+                <div>
+                    <h1>GYM PRO</h1>
+                    <p>Comprobante de Pago</p>
+                </div>
+            </div>
+            <div class="receipt-actions">
+                <button type="button" class="btn btn-primary" id="printReceipt">
+                    <i class="fas fa-print"></i> Imprimir
+                </button>
+            </div>
+        </div>
+
+        <div class="receipt-body">
+            <div class="receipt-summary">
+                <div class="summary-card">
+                    <span>Fecha de Pago</span>
+                    <strong>{{ payment.date|date:'d/m/Y H:i' }}</strong>
+                </div>
+                <div class="summary-card">
+                    <span>Número de Recibo</span>
+                    <strong>{{ payment.receipt_code }}</strong>
+                </div>
+                <div class="summary-card">
+                    <span>Estado</span>
+                    <strong class="status-paid">Pagado</strong>
+                </div>
+            </div>
+
+            <div class="receipt-details">
+                <div class="detail-block">
+                    <h3>Información del Cliente</h3>
+                    <p><strong>{{ payment.client.full_name }}</strong></p>
+                    <p>{{ payment.client.ci }}</p>
+                    <p>{{ payment.client.email }}</p>
+                </div>
+
+                <div class="detail-block">
+                    <h3>Detalles del Pago</h3>
+                    <p><span>Monto:</span> <strong>${{ payment.amount }}</strong></p>
+                    <p><span>Método:</span> {{ payment.get_method_display }}</p>
+                    {% if payment.membership %}
+                    <p><span>Plan:</span> {{ payment.membership.plan.name }}</p>
+                    <p><span>Vigencia:</span> {{ payment.membership.start_date|date:'d/m/Y' }} – {{ payment.membership.end_date|date:'d/m/Y' }}</p>
+                    {% else %}
+                    <p><span>Plan:</span> Sin plan</p>
+                    <p><span>Vigencia:</span> -</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if payment.notes %}
+            <div class="receipt-notes">
+                <h4>Notas</h4>
+                <p>{{ payment.notes }}</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="receipt-footer">
+            <div>
+                <p>GYM PRO</p>
+                <p>Teléfono: +51 999 999 999</p>
+                <p>Email: contacto@gympro.com</p>
+            </div>
+            <div>
+                <p>Gracias por mantener tu membresía activa.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('printReceipt')?.addEventListener('click', function() {
+        window.print();
+    });
+</script>
+{% endblock %}

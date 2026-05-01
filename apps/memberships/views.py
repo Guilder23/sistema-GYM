@@ -7,7 +7,7 @@ from .models import MembershipPlan, Membership, Payment
 from apps.clients.models import Client
 from datetime import datetime, timedelta
 from apps.core.models import UserProfile
-from apps.core.permissions import role_required
+from apps.core.permissions import get_linked_client, get_user_role, role_required
 
 
 @role_required(UserProfile.ROLE_ADMIN, UserProfile.ROLE_RECEPTION)
@@ -114,3 +114,15 @@ def payment_create(request):
         return redirect('payment_list')
 
     return render(request, 'memberships/payment_form.html', {'clients': clients})
+
+
+@role_required(UserProfile.ROLE_ADMIN, UserProfile.ROLE_RECEPTION, UserProfile.ROLE_CLIENT)
+def payment_receipt(request, payment_id):
+    payment = get_object_or_404(Payment, id=payment_id)
+    if get_user_role(request.user) == UserProfile.ROLE_CLIENT:
+        client = get_linked_client(request.user)
+        if not client or payment.client != client:
+            messages.error(request, 'No tienes permisos para ver este comprobante.')
+            return redirect('dashboard')
+
+    return render(request, 'memberships/payment_receipt.html', {'payment': payment})

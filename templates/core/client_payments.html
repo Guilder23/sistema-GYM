@@ -25,9 +25,15 @@
                         <td>{{ payment.date|date:"d/m/Y H:i" }}</td>
                         <td>{{ payment.membership.plan.name }}</td>
                         <td style="font-weight: 600;">${{ payment.amount }}</td>
-                        <td>{{ payment.payment_method|default:"Efectivo" }}</td>
+                        <td>{{ payment.get_method_display }}</td>
                         <td>
-                            <button class="btn btn-secondary btn-sm"><i class="fas fa-file-invoice"></i> Ver</button>
+                            {% if payment.receipt_code %}
+                            <a href="{% url 'payment_receipt' payment.id %}" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-file-invoice"></i> Ver
+                            </a>
+                            {% else %}
+                            -
+                            {% endif %}
                         </td>
                     </tr>
                     {% empty %}
