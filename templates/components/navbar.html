@@ -1,5 +1,8 @@
 <nav class="navbar">
     <div class="navbar-left">
+        <button type="button" class="menu-toggle" id="menuToggle" title="Menú" aria-label="Toggle menu">
+            <i class="fas fa-bars"></i>
+        </button>
         <h2 class="page-title">
             {% block page_title %}Dashboard{% endblock %}
         </h2>
@@ -18,9 +21,9 @@
                 <i class="fas fa-moon theme-icon theme-icon-dark"></i>
                 <i class="fas fa-sun theme-icon theme-icon-light"></i>
             </button>
-            <a href="#" class="nav-btn" title="Mensajes">
+            {% comment %} <a href="#" class="nav-btn" title="Mensajes">
                 <i class="fab fa-whatsapp"></i>
-            </a>
+            </a> {% endcomment %}
             <a href="{% url 'cart_detail' %}" class="nav-btn" title="Carrito de Ventas">
                 <i class="fas fa-shopping-cart"></i>
                 {% if request.session.cart %}
