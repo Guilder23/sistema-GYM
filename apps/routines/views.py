@@ -63,6 +63,57 @@ def routine_create(request):
 
 
 @role_required(UserProfile.ROLE_ADMIN, UserProfile.ROLE_TRAINER)
+def routine_edit(request, routine_id):
+    clients = Client.objects.filter(is_active=True).order_by('first_name', 'last_name')
+    trainers = Trainer.objects.filter(active=True).order_by('full_name')
+    current_role = get_user_role(request.user)
+    linked_trainer = get_linked_trainer(request.user)
+
+    if current_role == UserProfile.ROLE_TRAINER:
+        clients = clients.filter(trainer=linked_trainer)
+        trainers = trainers.filter(id=linked_trainer.id if linked_trainer else None)
+
+    routine_queryset = Routine.objects.all()
+    if current_role == UserProfile.ROLE_TRAINER:
+        trainer = get_linked_trainer(request.user)
+        routine_queryset = routine_queryset.filter(
+            models.Q(trainer=trainer) | models.Q(client__trainer=trainer)
+        ).distinct()
+
+    routine = get_object_or_404(routine_queryset, id=routine_id)
+
+    if request.method == 'POST':
+        name = request.POST.get('name', '').strip()
+        client_id = request.POST.get('client_id')
+        trainer_id = request.POST.get('trainer_id')
+        notes = request.POST.get('notes', '').strip()
+
+        client = get_object_or_404(clients, id=client_id)
+        trainer = None
+        if current_role == UserProfile.ROLE_TRAINER:
+            trainer = linked_trainer
+        elif trainer_id:
+            trainer = get_object_or_404(Trainer, id=trainer_id)
+
+        routine.name = name
+        routine.client = client
+        routine.trainer = trainer
+        routine.notes = notes
+        routine.save()
+
+        messages.success(request, 'Rutina actualizada correctamente.')
+        return redirect('routine_detail', routine_id=routine.id)
+
+    context = {
+        'clients': clients,
+        'trainers': trainers,
+        'routine': routine,
+        'is_edit': True,
+    }
+    return render(request, 'routines/routine_form.html', context)
+
+
+@role_required(UserProfile.ROLE_ADMIN, UserProfile.ROLE_TRAINER)
 def routine_detail(request, routine_id):
     routine_queryset = Routine.objects.all()
     if get_user_role(request.user) == UserProfile.ROLE_TRAINER:
@@ -97,3 +148,22 @@ def routine_detail(request, routine_id):
         'exercises': exercises,
     }
     return render(request, 'routines/routine_detail.html', context)
+
+
+@role_required(UserProfile.ROLE_ADMIN, UserProfile.ROLE_TRAINER)
+def routine_exercise_delete(request, routine_id, item_id):
+    routine_queryset = Routine.objects.all()
+    if get_user_role(request.user) == UserProfile.ROLE_TRAINER:
+        trainer = get_linked_trainer(request.user)
+        routine_queryset = routine_queryset.filter(
+            models.Q(trainer=trainer) | models.Q(client__trainer=trainer)
+        ).distinct()
+
+    routine = get_object_or_404(routine_queryset, id=routine_id)
+    routine_exercise = get_object_or_404(RoutineExercise, id=item_id, routine=routine)
+
+    if request.method == 'POST':
+        routine_exercise.delete()
+        messages.success(request, 'Ejercicio eliminado de la rutina.')
+
+    return redirect('routine_detail', routine_id=routine.id)

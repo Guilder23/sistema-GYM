@@ -32,7 +32,12 @@
                                 <td>{{ item.reps }}</td>
                                 <td>{{ item.rest_time }}</td>
                                 <td>
-                                    <button class="btn btn-secondary btn-sm" style="color: var(--color-danger);"><i class="fas fa-trash"></i></button>
+                                    <form method="POST" action="{% url 'routine_exercise_delete' routine.id item.id %}" onsubmit="return confirm('¿Estás seguro de eliminar este ejercicio?');" style="display: inline-block;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-secondary btn-sm" style="color: var(--color-danger);">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                             {% empty %}

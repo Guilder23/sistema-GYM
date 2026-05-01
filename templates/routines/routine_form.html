@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
-{% block title %}Nueva Rutina - GYM PRO{% endblock %}
-{% block page_title %}NUEVA RUTINA{% endblock %}
+{% block title %}{% if is_edit %}Editar Rutina{% else %}Nueva Rutina{% endif %} - GYM PRO{% endblock %}
+{% block page_title %}{% if is_edit %}EDITAR RUTINA{% else %}NUEVA RUTINA{% endif %}{% endblock %}
 
 {% block content %}
 <div class="card" style="max-width: 800px; margin: 0 auto;">
@@ -14,7 +14,7 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
                 <div class="form-group" style="grid-column: span 2;">
                     <label>Nombre de la Rutina</label>
-                    <input type="text" name="name" class="form-control" placeholder="Ej: Rutina de Volumen A" required>
+                    <input type="text" name="name" class="form-control" placeholder="Ej: Rutina de Volumen A" value="{{ routine.name|default_if_none:'' }}" required>
                 </div>
                 
                 <div class="form-group">
@@ -22,7 +22,7 @@
                     <select name="client_id" class="form-control" required>
                         <option value="">Seleccionar cliente</option>
                         {% for client in clients %}
-                        <option value="{{ client.id }}">{{ client.full_name }} - {{ client.ci }}</option>
+                        <option value="{{ client.id }}" {% if routine and routine.client.id == client.id %}selected{% endif %}>{{ client.full_name }} - {{ client.ci }}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -32,20 +32,20 @@
                     <select name="trainer_id" class="form-control">
                         <option value="">Sin entrenador</option>
                         {% for trainer in trainers %}
-                        <option value="{{ trainer.id }}">{{ trainer.full_name }}</option>
+                        <option value="{{ trainer.id }}" {% if routine and routine.trainer and routine.trainer.id == trainer.id %}selected{% endif %}>{{ trainer.full_name }}</option>
                         {% endfor %}
                     </select>
                 </div>
                 
                 <div class="form-group" style="grid-column: span 2;">
                     <label>Notas / Objetivos</label>
-                    <textarea name="notes" class="form-control" rows="4" placeholder="Ej: Enfocada en fuerza, 4 días a la semana..."></textarea>
+                    <textarea name="notes" class="form-control" rows="4" placeholder="Ej: Enfocada en fuerza, 4 días a la semana...">{{ routine.notes|default_if_none:'' }}</textarea>
                 </div>
             </div>
 
             <div style="margin-top: 32px; display: flex; justify-content: flex-end;">
                 <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-arrow-right"></i> Continuar a Ejercicios
+                    <i class="fas fa-save"></i> {% if is_edit %}Guardar cambios{% else %}Continuar a Ejercicios{% endif %}
                 </button>
             </div>
         </form>
