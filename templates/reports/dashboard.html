@@ -3,23 +3,30 @@
 {% block page_title %}REPORTES Y ESTADÍSTICAS{% endblock %}
 
 {% block content %}
+<!-- Tarjetas de Resumen -->
 <div class="stats-grid">
     <div class="stat-card">
         <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
             <i class="fas fa-hand-holding-dollar"></i>
         </div>
         <div class="stat-info">
-            <span class="stat-label">Ingresos (Últimos 30 días)</span>
-            <span class="stat-value"> Bs{{ total_revenue_month }}</span>
+            <span class="stat-label">Ingresos (30 días)</span>
+            <span class="stat-value">Bs{{ total_revenue_month }}</span>
+            <div class="stat-trend trend-up">
+                <i class="fas fa-chart-line"></i> Mes actual
+            </div>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-icon" style="background: rgba(99, 102, 241, 0.1); color: #6366f1;">
-            <i class="fas fa-users-check"></i>
+            <i class="fas fa-users"></i>
         </div>
         <div class="stat-info">
             <span class="stat-label">Clientes Activos</span>
             <span class="stat-value">{{ active_clients }}</span>
+            <div class="stat-trend" style="color: var(--text-muted);">
+                Total: {{ active_clients|add:inactive_clients }}
+            </div>
         </div>
     </div>
     <div class="stat-card">
@@ -29,40 +36,64 @@
         <div class="stat-info">
             <span class="stat-label">Accesos Hoy</span>
             <span class="stat-value">{{ today_access }}</span>
+            <div class="stat-trend trend-up">
+                <i class="fas fa-check"></i> En puerta
+            </div>
         </div>
     </div>
 </div>
 
-<div class="dashboard-grid">
+<!-- Gráficos Principales -->
+<div class="dashboard-grid" style="grid-template-columns: 2fr 1fr; margin-top: 24px;">
     <div class="grid-left">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">Distribución de Clientes</h3>
+                <h3 class="card-title">Tendencia de Ingresos</h3>
+                <span class="badge-status status-active">Últimos 6 meses</span>
             </div>
             <div class="card-body">
-                <div style="height: 300px; display: flex; align-items: center; justify-content: center; background: var(--bg-body); border-radius: 12px;">
-                    <p style="color: var(--text-muted); text-align: center; padding: 20px;">
-                        <i class="fas fa-chart-pie" style="font-size: 40px; margin-bottom: 12px; display: block;"></i>
-                        Activos: {{ active_clients }} | Inactivos: {{ inactive_clients }}
-                    </p>
-                </div>
+                <canvas id="revenueChart" height="250"></canvas>
             </div>
         </div>
     </div>
     <div class="grid-right">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">Exportar Datos</h3>
+                <h3 class="card-title">Planes Activos</h3>
             </div>
             <div class="card-body">
+                <canvas id="planChart" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-grid" style="grid-template-columns: 1fr 1fr; margin-top: 24px;">
+    <div class="grid-left">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Asistencia Semanal</h3>
+            </div>
+            <div class="card-body">
+                <canvas id="attendanceChart" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="grid-right">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Exportar Información</h3>
+            </div>
+            <div class="card-body">
+                <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">Descarga los reportes detallados en formato Excel o CSV para auditoría externa.</p>
                 <div style="display: grid; gap: 12px;">
-                    <a href="#" class="btn btn-secondary" style="justify-content: center;">
+                    <a href="{% url 'export_clients_excel' %}" class="btn btn-secondary" style="justify-content: center; background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid #10b981;">
                         <i class="fas fa-file-excel"></i> Exportar Clientes (Excel)
                     </a>
-                    <a href="#" class="btn btn-secondary" style="justify-content: center;">
-                        <i class="fas fa-file-pdf"></i> Reporte de Pagos Mensual (PDF)
+                    <a href="{% url 'export_payments_pdf' %}" class="btn btn-secondary" style="justify-content: center; background: rgba(99, 102, 241, 0.1); color: #6366f1; border: 1px solid #6366f1;">
+                        <i class="fas fa-file-pdf"></i> Reporte de Pagos (PDF)
                     </a>
-                    <a href="#" class="btn btn-secondary" style="justify-content: center;">
+                    <a href="{% url 'export_access_csv' %}" class="btn btn-secondary" style="justify-content: center; background: rgba(14, 165, 233, 0.1); color: #0ea5e9; border: 1px solid #0ea5e9;">
                         <i class="fas fa-file-csv"></i> Historial de Accesos (CSV)
                     </a>
                 </div>
@@ -70,4 +101,88 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Configuración Global de Chart.js
+    Chart.defaults.color = '#94a3b8';
+    Chart.defaults.font.family = "'Inter', sans-serif";
+
+    // Gráfico de Ingresos
+    const revCtx = document.getElementById('revenueChart').getContext('2d');
+    new Chart(revCtx, {
+        type: 'line',
+        data: {
+            labels: {{ revenue_labels|safe }},
+            datasets: [{
+                label: 'Ingresos (Bs)',
+                data: {{ revenue_data|safe }},
+                borderColor: '#6366f1',
+                backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 4,
+                pointBackgroundColor: '#6366f1'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+
+    // Gráfico de Planes
+    const planCtx = document.getElementById('planChart').getContext('2d');
+    new Chart(planCtx, {
+        type: 'doughnut',
+        data: {
+            labels: {{ plan_labels|safe }},
+            datasets: [{
+                data: {{ plan_data|safe }},
+                backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#0ea5e9'],
+                borderWidth: 0,
+                hoverOffset: 10
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom', labels: { padding: 20, usePointStyle: true } }
+            },
+            cutout: '70%'
+        }
+    });
+
+    // Gráfico de Asistencia
+    const attCtx = document.getElementById('attendanceChart').getContext('2d');
+    new Chart(attCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ attendance_labels|safe }},
+            datasets: [{
+                label: 'Personas',
+                data: {{ attendance_data|safe }},
+                backgroundColor: '#0ea5e9',
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+</script>
 {% endblock %}
