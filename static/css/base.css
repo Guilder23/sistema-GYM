@@ -188,7 +188,7 @@ body {
 .user-avatar {
     width: 40px;
     height: 40px;
-    border-radius: 10px;
+    border-radius: 50%;
     object-fit: cover;
 }
 
@@ -251,7 +251,7 @@ body {
     height: 32px;
     background-color: var(--color-primary);
     color: white;
-    border-radius: 8px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;

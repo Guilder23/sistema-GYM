@@ -11,49 +11,57 @@
 <body class="login-body">
     <div class="login-container">
         <div class="login-box">
-            <div class="login-header">
-                <div class="logo-section">
-                    <i class="fas fa-dumbbell"></i>
-                    <h1>GYM SYSTEM</h1>
+            <div class="login-side" style="background-image: url('{% static "img/gym3.png" %}');">
+                <div class="side-hero">
+                    <div class="hero-title">GYM POWER</div>
+                    <div class="hero-subtitle">Entrena con disciplina y controla tu gimnasio desde aquí.</div>
                 </div>
-                <p class="subtitle">Sistema de Gestión de Gimnasios</p>
             </div>
 
-            <form method="POST" class="login-form">
-                {% csrf_token %}
-
-                {% if messages %}
-                    {% for message in messages %}
-                        <div class="alert alert-error">
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-                {% endif %}
-
-                <div class="form-group">
-                    <label for="username">
-                        <i class="fas fa-user"></i>
-                        Nombre de Usuario
-                    </label>
-                    <input type="text" id="username" name="username" required placeholder="Tu usuario">
+            <div class="login-panel">
+                <div class="panel-header">
+                    <h1>Iniciar Sesión</h1>
+                    <p>Bienvenido de vuelta, ingresa tus datos para continuar.</p>
                 </div>
 
-                <div class="form-group">
-                    <label for="password">
-                        <i class="fas fa-lock"></i>
-                        Contraseña
-                    </label>
-                    <input type="password" id="password" name="password" required placeholder="••••••••">
+                <form method="POST" class="login-form">
+                    {% csrf_token %}
+
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-error">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <div class="form-group">
+                        <label for="username">
+                            <i class="fas fa-user"></i>
+                            Usuario
+                        </label>
+                        <input type="text" id="username" name="username" required placeholder="Ingresa tu usuario" autocomplete="username">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">
+                            <i class="fas fa-lock"></i>
+                            Contraseña
+                        </label>
+                        <input type="password" id="password" name="password" required placeholder="Ingresa tu contraseña" autocomplete="current-password">
+                    </div>
+
+                    <button type="submit" class="btn-login">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Ingresar
+                    </button>
+                </form>
+
+                <div class="login-links">
+                    <a href="#">Registrarse</a>
+                    <a href="#">¿Olvidaste tu contraseña?</a>
                 </div>
-
-                <button type="submit" class="btn-login">
-                    <i class="fas fa-sign-in-alt"></i>
-                    Iniciar Sesión
-                </button>
-            </form>
-
-            <div class="login-footer">
-                <p>¿Problemas para acceder? Contacta al administrador</p>
             </div>
         </div>
     </div>

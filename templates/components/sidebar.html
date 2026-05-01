@@ -128,7 +128,9 @@
 
     <div class="sidebar-footer">
         <div class="user-profile">
-            {% if request.user.profile.profile_photo %}
+            {% if request.user.profile.role == 'CLIENTE' and request.user.profile.client.profile_photo %}
+                <img src="{{ request.user.profile.client.profile_photo.url }}" alt="User" class="user-avatar">
+            {% elif request.user.profile.profile_photo %}
                 <img src="{{ request.user.profile.profile_photo.url }}" alt="User" class="user-avatar">
             {% else %}
                 <img src="https://ui-avatars.com/api/?name={{ request.user.get_full_name|default:request.user.username }}&background=6366f1&color=fff" alt="User" class="user-avatar">
