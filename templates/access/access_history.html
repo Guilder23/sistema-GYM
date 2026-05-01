@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Historial de Accesos - GYM PRO{% endblock %}
+{% block page_title %}HISTORIAL DE ACCESOS{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header" style="display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+        <h3 class="card-title">Registros de Acceso</h3>
+        <a href="{% url 'access_panel' %}" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i> Volver</a>
+    </div>
+    <div class="card-body" style="padding: 0;">
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Cliente</th>
+                        <th>CI/DNI</th>
+                        <th>Hora</th>
+                        <th>Estado</th>
+                        <th>Mensaje</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for access in access_records %}
+                    <tr>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <img src="https://ui-avatars.com/api/?name={{ access.client.full_name }}&background=random" style="width: 34px; height: 34px; border-radius: 50%; object-fit: cover;">
+                                <span>{{ access.client.full_name }}</span>
+                            </div>
+                        </td>
+                        <td>{{ access.client.ci }}</td>
+                        <td>{{ access.timestamp|date:"d/m/Y H:i:s" }}</td>
+                        <td>
+                            {% if access.valid %}
+                            <span class="badge-status status-active">Válido</span>
+                            {% else %}
+                            <span class="badge-status status-expired">Denegado</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ access.message }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 48px; color: var(--text-muted);">No hay registros de acceso.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

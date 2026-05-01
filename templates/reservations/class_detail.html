@@ -39,7 +39,18 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <button class="btn btn-secondary btn-sm" style="color: var(--color-danger);"><i class="fas fa-times"></i></button>
+                                    {% if res.confirmed %}
+                                    <form method="POST" action="" style="display: inline-block;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="cancel_reservation">
+                                        <input type="hidden" name="reservation_id" value="{{ res.id }}">
+                                        <button type="submit" class="btn btn-secondary btn-sm" style="color: var(--color-danger);">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </form>
+                                    {% else %}
+                                    <span style="color: var(--text-muted); font-size: 13px;">Cancelada</span>
+                                    {% endif %}
                                 </td>
                             </tr>
                             {% empty %}
@@ -84,9 +95,19 @@
                 </div>
 
                 <div style="margin-top: 24px;">
-                    <a href="#" class="btn btn-primary" style="width: 100%; justify-content: center;">
-                        <i class="fas fa-plus"></i> Inscribir Cliente
-                    </a>
+                    <form method="POST" action="" style="display: grid; gap: 16px;">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="ci">CI / DNI del Cliente</label>
+                            <input type="text" id="ci" name="ci" class="form-control" placeholder="Ingrese CI o DNI" required {% if class.available_spots <= 0 %}disabled{% endif %}>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;" {% if class.available_spots <= 0 %}disabled style="background-color: rgba(251, 86, 7, 0.4); cursor: not-allowed;"{% endif %}>
+                            <i class="fas fa-plus"></i> {% if class.available_spots > 0 %}Inscribir Cliente{% else %}Cupos Agotados{% endif %}
+                        </button>
+                    </form>
+                    <div style="margin-top: 14px; color: var(--text-muted); font-size: 14px;">
+                        Cupos disponibles: <strong>{{ class.available_spots }}</strong>
+                    </div>
                 </div>
             </div>
         </div>
