@@ -1,41 +1,40 @@
 import requests
 from django.conf import settings
-from .models import Exercise, ExerciseCategory
+from .models import Exercise, ExerciseCategory, Muscle, Equipment
 
 class WgerService:
     BASE_URL = "https://wger.de/api/v2/"
     
     def __init__(self):
-        # Wger API no requiere token para lecturas básicas, pero se puede configurar si es necesario
-        self.headers = {
-            'Accept': 'application/json',
-        }
+        self.headers = {'Accept': 'application/json'}
 
-    def sync_categories(self):
-        """Sincroniza las categorías de ejercicios desde Wger"""
-        url = f"{self.BASE_URL}exercisecategory/"
-        response = requests.get(url, headers=self.headers)
-        
+    def sync_anatomy(self):
+        """Sincroniza músculos y equipamiento"""
+        # Sincronizar Músculos
+        response = requests.get(f"{self.BASE_URL}muscle/", headers=self.headers)
         if response.status_code == 200:
-            data = response.json()
-            results = data.get('results', [])
-            
-            synced_count = 0
-            for item in results:
-                category, created = ExerciseCategory.objects.update_or_create(
+            for item in response.json().get('results', []):
+                Muscle.objects.update_or_create(
                     wger_id=item['id'],
                     defaults={
                         'name': item['name'],
+                        'is_front': item.get('is_front', True),
+                        'image_url_main': item.get('image_url_main')
                     }
                 )
-                if created:
-                    synced_count += 1
-            return synced_count
-        return 0
+        
+        # Sincronizar Equipamiento
+        response = requests.get(f"{self.BASE_URL}equipment/", headers=self.headers)
+        if response.status_code == 200:
+            for item in response.json().get('results', []):
+                Equipment.objects.update_or_create(
+                    wger_id=item['id'],
+                    defaults={'name': item['name']}
+                )
 
     def sync_exercises(self, limit=100, language_id=4):
         """
-        Sincroniza ejercicios desde Wger usando exerciseinfo para obtener todo en una sola petición.
+        Sincroniza ejercicios desde Wger usando exerciseinfo.
         """
         url = f"{self.BASE_URL}exerciseinfo/?limit={limit}"
         response = requests.get(url, headers=self.headers)
@@ -46,41 +45,31 @@ class WgerService:
             
             synced_count = 0
             for item in results:
-                # Datos básicos del ejercicio
-                exercise_data = item.get('exercise', {})
-                wger_id = exercise_data.get('id')
+                wger_id = item.get('id')
                 
-                # Buscar traducción al idioma
+                # Intentar obtener nombre en español (4) o inglés (2)
                 translations = item.get('translations', [])
-                # Prioridad: Idioma solicitado > Inglés (2) > Primero disponible
                 trans = next((t for t in translations if t.get('language') == language_id), None)
-                if not trans:
-                    trans = next((t for t in translations if t.get('language') == 2), None)
-                if not trans and translations:
-                    trans = translations[0]
+                if not trans: trans = next((t for t in translations if t.get('language') == 2), None)
                 
                 if not trans or not wger_id:
                     continue
 
                 name = trans.get('name')
                 description = trans.get('description', '')
-                
-                # Categoría
-                cat_data = item.get('category', {})
-                cat_wger_id = cat_data.get('id')
-                
-                # Imagen
+
+                category_data = item.get('category', {})
+                category, _ = ExerciseCategory.objects.get_or_create(
+                    wger_id=category_data.get('id'),
+                    defaults={'name': category_data.get('name', 'General')}
+                )
+
+                # Imágenes
                 images = item.get('images', [])
                 wger_image_url = None
                 if images:
                     main_img = next((img for img in images if img.get('is_main')), images[0])
                     wger_image_url = main_img.get('image')
-
-                # Obtener/Crear categoría
-                category, _ = ExerciseCategory.objects.get_or_create(
-                    wger_id=cat_wger_id,
-                    defaults={'name': cat_data.get('name', 'General')}
-                )
 
                 exercise, created = Exercise.objects.update_or_create(
                     wger_id=wger_id,
@@ -91,7 +80,19 @@ class WgerService:
                         'wger_image_url': wger_image_url,
                     }
                 )
-                if created:
-                    synced_count += 1
+                
+                # Músculos
+                m_ids = [m['id'] for m in item.get('muscles', [])]
+                m_ids += [m['id'] for m in item.get('muscles_secondary', [])]
+                if m_ids:
+                    muscle_objs = Muscle.objects.filter(wger_id__in=m_ids)
+                    exercise.muscles.set(muscle_objs)
+                
+                # Equipo
+                e_ids = [e['id'] for e in item.get('equipment', [])]
+                if e_ids:
+                    exercise.equipment.set(Equipment.objects.filter(wger_id__in=e_ids))
+
+                if created: synced_count += 1
             return synced_count
         return 0

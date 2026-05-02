@@ -10,6 +10,22 @@ class ExerciseCategory(models.Model):
     def __str__(self):
         return self.name
 
+class Muscle(models.Model):
+    name = models.CharField(max_length=100)
+    wger_id = models.IntegerField(unique=True)
+    is_front = models.BooleanField(default=True)
+    image_url_main = models.URLField(max_length=500, null=True, blank=True)
+
+    def __str__(self):
+        return self.name
+
+class Equipment(models.Model):
+    name = models.CharField(max_length=100)
+    wger_id = models.IntegerField(unique=True)
+
+    def __str__(self):
+        return self.name
+
 class Exercise(models.Model):
     name = models.CharField(max_length=140)
     category = models.ForeignKey(ExerciseCategory, on_delete=models.CASCADE, related_name='exercises')
@@ -17,6 +33,8 @@ class Exercise(models.Model):
     image = models.ImageField(upload_to='exercises/', blank=True, null=True)
     wger_id = models.IntegerField(null=True, blank=True, unique=True)
     wger_image_url = models.URLField(max_length=500, null=True, blank=True)
+    muscles = models.ManyToManyField(Muscle, related_name='exercises', blank=True)
+    equipment = models.ManyToManyField(Equipment, related_name='exercises', blank=True)
 
     def __str__(self):
         return self.name

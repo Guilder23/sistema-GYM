@@ -117,6 +117,10 @@
             <i class="fas fa-dumbbell"></i>
             <span>Mis Rutinas</span>
         </a>
+        <a href="{% url 'nutrition_dashboard' %}" class="nav-item {% if 'nutrition' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="fas fa-apple-whole"></i>
+            <span>Mi Nutrición</span>
+        </a>
         <a href="{% url 'my_reservations' %}" class="nav-item {% if 'my_reservations' in request.resolver_match.url_name %}active{% endif %}">
             <i class="fas fa-calendar-check"></i>
             <span>Mis Reservas</span>

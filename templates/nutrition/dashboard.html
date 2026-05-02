@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% block title %}Mi Nutrición - GYM PRO{% endblock %}
+{% block page_title %}MI DIARIO DE NUTRICIÓN{% endblock %}
+
+{% block content %}
+<div class="dashboard-grid">
+    <div class="grid-left">
+        <div class="card" style="margin-bottom: 24px; background: var(--color-primary); color: white;">
+            <div class="card-body" style="display: flex; justify-content: space-around; text-align: center; flex-wrap: wrap; gap: 20px;">
+                <div>
+                    <h2 style="font-size: 28px;">{{ total_calories }}</h2>
+                    <p style="font-size: 11px; opacity: 0.8;">CALORÍAS (kcal)</p>
+                </div>
+                <div>
+                    <h2 style="font-size: 28px;">{{ total_protein }}g</h2>
+                    <p style="font-size: 11px; opacity: 0.8;">PROTEÍNA</p>
+                </div>
+                <div>
+                    <h2 style="font-size: 28px;">{{ total_carbs }}g</h2>
+                    <p style="font-size: 11px; opacity: 0.8;">CARBS</p>
+                </div>
+                <div>
+                    <h2 style="font-size: 28px;">{{ total_fat }}g</h2>
+                    <p style="font-size: 11px; opacity: 0.8;">GRASAS</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <h3 class="card-title">Registros de Hoy</h3>
+                <a href="{% url 'log_create' %}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-plus"></i> Nuevo Registro
+                </a>
+            </div>
+            <div class="card-body" style="padding: 0;">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Momento</th>
+                                <th>Alimento</th>
+                                <th>Cantidad</th>
+                                <th>Macros</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in logs %}
+                            <tr>
+                                <td><span class="badge-status status-active">{{ log.get_meal_type_display }}</span></td>
+                                <td style="font-weight: 600;">{{ log.food_name }}</td>
+                                <td>{{ log.amount_g }}g</td>
+                                <td>
+                                    <div style="font-size: 11px; color: var(--text-muted);">
+                                        <span style="color: #ef4444;">{{ log.calories }} kcal</span> | 
+                                        <span style="color: #3b82f6;">P: {{ log.protein }}g</span> | 
+                                        <span style="color: #f59e0b;">C: {{ log.carbs }}g</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="display: flex; gap: 8px;">
+                                        <a href="{% url 'log_edit' log.id %}" class="btn-action" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{% url 'log_delete' log.id %}" class="btn-action" style="color: #ef4444;" title="Eliminar">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" style="text-align: center; padding: 48px; color: var(--text-muted);">No hay registros nutricionales.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid-right">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Resumen de Nutrición</h3>
+            </div>
+            <div class="card-body">
+                <p style="color: var(--text-muted); line-height: 1.6; font-size: 14px;">
+                    Aquí puedes llevar un control manual de lo que consumes. 
+                    Registra tus comidas diarias para ver el total de macronutrientes.
+                </p>
+                <div style="margin-top: 20px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px;">
+                        <span>Proteína diaria</span>
+                        <span style="font-weight: 600;">{{ total_protein }}g</span>
+                    </div>
+                    <div style="height: 6px; background: var(--bg-body); border-radius: 3px; overflow: hidden;">
+                        <div style="width: {% if total_protein > 150 %}100{% else %}{{ total_protein }}{% endif %}%; height: 100%; background: #3b82f6;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

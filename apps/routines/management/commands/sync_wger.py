@@ -25,10 +25,9 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.SUCCESS('Iniciando sincronización con Wger API...'))
 
-        # 1. Sincronizar categorías
-        self.stdout.write('Sincronizando categorías...')
-        categories_count = service.sync_categories()
-        self.stdout.write(self.style.SUCCESS(f'Se sincronizaron {categories_count} nuevas categorías.'))
+        # 1. Sincronizar anatomía (Músculos y Equipo)
+        self.stdout.write('Sincronizando anatomía (Músculos y Equipo)...')
+        service.sync_anatomy()
 
         # 2. Sincronizar ejercicios
         self.stdout.write(f'Sincronizando hasta {limit} ejercicios (Idioma ID: {language})...')

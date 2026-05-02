@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }} - GYM PRO{% endblock %}
+{% block page_title %}{{ title|upper }}{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 600px; margin: 0 auto;">
+    <div class="card-header">
+        <h3 class="card-title">{{ title }}</h3>
+    </div>
+    <div class="card-body">
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <label>Tipo de Comida</label>
+                {{ form.meal_type }}
+            </div>
+            <div class="form-group">
+                <label>Nombre del Alimento</label>
+                {{ form.food_name }}
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label>Cantidad (gramos)</label>
+                    {{ form.amount_g }}
+                </div>
+                <div class="form-group">
+                    <label>Calorías (kcal)</label>
+                    {{ form.calories }}
+                </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                <div class="form-group">
+                    <label>Proteína (g)</label>
+                    {{ form.protein }}
+                </div>
+                <div class="form-group">
+                    <label>Carbos (g)</label>
+                    {{ form.carbs }}
+                </div>
+                <div class="form-group">
+                    <label>Grasas (g)</label>
+                    {{ form.fat }}
+                </div>
+            </div>
+            <div style="margin-top: 24px; display: flex; gap: 10px;">
+                <button type="submit" class="btn btn-primary" style="flex: 1; justify-content: center;">
+                    <i class="fas fa-save"></i> Guardar Registro
+                </button>
+                <a href="{% url 'nutrition_dashboard' %}" class="btn btn-secondary" style="flex: 1; justify-content: center;">
+                    Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     'apps.inventory',
     'apps.notifications',
     'apps.reports',
+    'apps.nutrition',
 ]
 
 MIDDLEWARE = [
