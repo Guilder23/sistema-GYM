@@ -23,7 +23,7 @@
         </div>
         <div class="stat-info">
             <span class="stat-label">Ingresos del mes</span>
-            <span class="stat-value"> Bs{{ total_income|default:"0.00" }}</span>
+            <span class="stat-value"> Bs{{ total_income|floatformat:2 }}</span>
             <div class="stat-trend trend-up">
                 <i class="fas fa-arrow-up"></i> 8% más que el mes anterior
             </div>

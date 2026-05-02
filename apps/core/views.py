@@ -57,7 +57,7 @@ def dashboard(request):
     month_ago = today - timedelta(days=30)
 
     if role == UserProfile.ROLE_ADMIN:
-        total_income = Payment.objects.filter(date__date__gte=month_ago).aggregate(
+        total_income = Payment.objects.filter(date__gte=month_ago).aggregate(
             total=models.Sum('amount')
         )['total'] or 0
         
