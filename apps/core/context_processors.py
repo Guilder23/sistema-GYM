@@ -29,8 +29,11 @@ def notifications_count(request):
         )
 
     count = notifications.filter(is_read=False).count()
+    recent_notifications = notifications.order_by('-created_at')[:5]
+
     return {
         'notifications_count': count,
+        'recent_notifications': recent_notifications,
         'current_user_role': current_user_role,
         'current_user_role_label': get_role_label(current_user_role),
         'linked_client': linked_client,

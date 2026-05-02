@@ -25,9 +25,16 @@ function closeMobileSidebar() {
     overlay.classList.remove('active');
 }
 
-function toggleNotifications() {
+function toggleNotifications(event) {
+    if (event) event.stopPropagation();
     const dropdown = document.getElementById('notificationDropdown');
-    dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+    const isVisible = dropdown.style.display === 'block';
+    
+    // Cerrar otros dropdowns si estuvieran abiertos
+    const userDropdown = document.getElementById('userDropdown');
+    if (userDropdown) userDropdown.style.display = 'none';
+    
+    dropdown.style.display = isVisible ? 'none' : 'block';
 }
 
 function toggleUserMenu() {

@@ -24,18 +24,55 @@
             {% comment %} <a href="#" class="nav-btn" title="Mensajes">
                 <i class="fab fa-whatsapp"></i>
             </a> {% endcomment %}
+            {% if request.user.profile.role == 'ADMIN' or request.user.profile.role == 'RECEPCIONISTA' %}
             <a href="{% url 'cart_detail' %}" class="nav-btn" title="Carrito de Ventas">
                 <i class="fas fa-shopping-cart"></i>
                 {% if request.session.cart %}
                 <span class="badge" style="background: var(--color-success);">{{ request.session.cart|length }}</span>
                 {% endif %}
             </a>
-            <a href="{% url 'notification_list' %}" class="nav-btn" title="Notificaciones">
-                <i class="fas fa-bell"></i>
-                {% if notifications_count > 0 %}
-                <span class="badge">{{ notifications_count }}</span>
-                {% endif %}
-            </a>
+            {% endif %}
+
+            <div class="navbar-item">
+                <button type="button" class="nav-btn" id="notificationBtn" onclick="toggleNotifications(event)" title="Notificaciones">
+                    <i class="fas fa-bell"></i>
+                    {% if notifications_count > 0 %}
+                    <span class="badge">{{ notifications_count }}</span>
+                    {% endif %}
+                </button>
+
+                <!-- Dropdown de Notificaciones -->
+                <div class="dropdown-menu" id="notificationDropdown">
+                    <div class="dropdown-header">
+                        <h4>Notificaciones</h4>
+                        {% if notifications_count > 0 %}
+                        <span class="badge-status status-active" style="font-size: 10px;">{{ notifications_count }} nuevas</span>
+                        {% endif %}
+                    </div>
+                    <div class="dropdown-body">
+                        {% for n in recent_notifications %}
+                        <a href="{% url 'notification_list' %}" class="notification-item {% if not n.is_read %}unread{% endif %}">
+                            <div class="notification-icon">
+                                <i class="fas fa-{% if n.notification_type == 'COMUNICADO' %}bullhorn{% elif 'vencimiento' in n.title|lower %}clock{% elif 'pago' in n.title|lower %}money-bill{% else %}bell{% endif %}"></i>
+                            </div>
+                            <div class="notification-content">
+                                <span class="notification-title">{{ n.title }}</span>
+                                <p class="notification-text">{{ n.message }}</p>
+                                <span class="notification-time">{{ n.created_at|timesince }}</span>
+                            </div>
+                        </a>
+                        {% empty %}
+                        <div style="padding: 30px; text-align: center; color: var(--text-muted);">
+                            <i class="fas fa-bell-slash" style="font-size: 24px; margin-bottom: 10px; display: block; opacity: 0.5;"></i>
+                            <span style="font-size: 12px;">No tienes notificaciones</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="dropdown-footer">
+                        <a href="{% url 'notification_list' %}">Ver todas las notificaciones</a>
+                    </div>
+                </div>
+            </div>
             <div class="user-menu">
                 <div class="user-avatar-mini">
                     {% if request.user.profile.role == 'CLIENTE' and request.user.profile.client.profile_photo %}
