@@ -3,7 +3,8 @@ import uuid
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.utils import timezone
-from .models import MembershipPlan, Membership, Payment
+from .models import MembershipPlan, Membership, Payment, Promotion
+from apps.notifications.models import Notification
 from apps.clients.models import Client
 from datetime import datetime, timedelta
 from apps.core.models import UserProfile
@@ -46,14 +47,31 @@ def membership_plan_create(request):
 def membership_for_client(request, client_id):
     client = get_object_or_404(Client, id=client_id)
     plans = MembershipPlan.objects.filter(active=True).order_by('duration_days', 'price')
+    today = timezone.now().date()
     
+    # Obtener promociones activas para mostrarlas en el formulario
+    active_promotions = Promotion.objects.filter(
+        is_active=True,
+        start_date__lte=today,
+        end_date__gte=today
+    ).prefetch_related('applicable_plans')
+
     if request.method == 'POST':
         plan_id = request.POST.get('plan_id')
         method = request.POST.get('method', 'EFECTIVO')
+        promo_id = request.POST.get('promo_id')
         plan = get_object_or_404(MembershipPlan, id=plan_id)
         start_date = timezone.now().date()
         end_date = start_date + timedelta(days=int(plan.duration_days))
         
+        # Calcular precio con descuento si hay promoción
+        final_price = plan.price
+        promo = None
+        if promo_id:
+            promo = get_object_or_404(Promotion, id=promo_id)
+            discount = (final_price * promo.discount_percentage) / 100
+            final_price -= discount
+
         membership = Membership.objects.create(
             client=client,
             plan=plan,
@@ -64,15 +82,20 @@ def membership_for_client(request, client_id):
         Payment.objects.create(
             client=client,
             membership=membership,
-            amount=plan.price,
+            amount=final_price,
             method=method,
             receipt_code=uuid.uuid4().hex[:10].upper(),
+            notes=f"Renovación de plan {plan.name}. " + (f"Promo: {promo.title}" if promo else "")
         )
 
-        messages.success(request, 'Membresía asignada y pago registrado correctamente.')
+        messages.success(request, f'Membresía asignada correctamente. Total cobrado: ${final_price}')
         return redirect('client_detail', client_id=client.id)
     
-    context = {'client': client, 'plans': plans}
+    context = {
+        'client': client, 
+        'plans': plans,
+        'active_promotions': active_promotions
+    }
     return render(request, 'memberships/assign_membership.html', context)
 
 
@@ -146,3 +169,56 @@ def payment_receipt(request, payment_id):
             return redirect('dashboard')
 
     return render(request, 'memberships/payment_receipt.html', {'payment': payment})
+
+
+@role_required(UserProfile.ROLE_ADMIN)
+def promotion_list(request):
+    promotions = Promotion.objects.all().order_by('-created_at')
+    return render(request, 'memberships/promotion_list.html', {'promotions': promotions})
+
+
+@role_required(UserProfile.ROLE_ADMIN)
+def promotion_create(request):
+    plans = MembershipPlan.objects.filter(active=True)
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        description = request.POST.get('description')
+        discount = request.POST.get('discount_percentage', 0)
+        start_date = request.POST.get('start_date')
+        end_date = request.POST.get('end_date')
+        plan_ids = request.POST.getlist('applicable_plans')
+
+        if title and description and start_date and end_date:
+            promotion = Promotion.objects.create(
+                title=title,
+                description=description,
+                discount_percentage=discount,
+                start_date=start_date,
+                end_date=end_date
+            )
+            if plan_ids:
+                promotion.applicable_plans.set(plan_ids)
+            
+            # Entrelazar con notificaciones globales
+            Notification.objects.create(
+                title=f"Nueva Promoción: {title}",
+                message=f"Aprovecha: {description}. Válido hasta el {end_date}.",
+                notification_type='PROMOCION',
+                is_global=True,
+                sent=True
+            )
+            
+            messages.success(request, 'Promoción creada y notificada a todos los clientes.')
+            return redirect('promotion_list')
+        else:
+            messages.error(request, 'Todos los campos son obligatorios.')
+            
+    return render(request, 'memberships/promotion_form.html', {'plans': plans})
+
+
+@role_required(UserProfile.ROLE_ADMIN)
+def promotion_delete(request, promo_id):
+    promotion = get_object_or_404(Promotion, id=promo_id)
+    promotion.delete()
+    messages.success(request, 'Promoción eliminada.')
+    return redirect('promotion_list')

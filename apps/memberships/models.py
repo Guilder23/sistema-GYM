@@ -45,3 +45,21 @@ class Payment(models.Model):
 
     def __str__(self):
         return f'Pago {self.amount} - {self.client} ({self.date:%Y-%m-%d})'
+
+class Promotion(models.Model):
+    title = models.CharField(max_length=150)
+    description = models.TextField()
+    discount_percentage = models.PositiveIntegerField(default=0, help_text="Porcentaje de descuento (0-100)")
+    start_date = models.DateField(default=timezone.now)
+    end_date = models.DateField()
+    is_active = models.BooleanField(default=True)
+    applicable_plans = models.ManyToManyField(MembershipPlan, related_name='promotions', blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+
+    @property
+    def is_current(self):
+        today = timezone.now().date()
+        return self.is_active and self.start_date <= today <= self.end_date

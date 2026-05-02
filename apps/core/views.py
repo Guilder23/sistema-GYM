@@ -11,7 +11,7 @@ from django.utils import timezone
 from apps.access.models import AccessRecord
 from apps.clients.models import Client
 from apps.inventory.models import Product
-from apps.memberships.models import Membership, Payment
+from apps.memberships.models import Membership, Payment, Promotion
 from apps.notifications.models import Notification
 from apps.reservations.models import ClassSchedule, Reservation
 from apps.routines.models import Routine
@@ -130,16 +130,27 @@ def dashboard(request):
         if not client:
             messages.error(request, 'Tu cuenta de cliente no está vinculada a un perfil.')
             return redirect('logout')
-        current_membership = client.memberships.order_by('-start_date').first()
+
+        # Obtener promociones vigentes
+        active_promotions = Promotion.objects.filter(
+            is_active=True,
+            start_date__lte=today,
+            end_date__gte=today
+        ).order_by('-created_at')
+
         context = {
             'client': client,
-            'current_membership': current_membership,
+            'current_membership': client.memberships.filter(active=True).first(),
+            'latest_routines': client.routines.order_by('-created_at')[:3],
+            'upcoming_reservations': client.reservations.filter(
+                schedule__date__gte=today
+            ).order_by('schedule__date', 'schedule__start_time')[:3],
             'latest_payments': client.payments.order_by('-date')[:5],
-            'latest_routines': client.routines.order_by('-created_at')[:5],
-            'upcoming_reservations': client.reservations.select_related('schedule', 'schedule__class_type').order_by(
-                'schedule__date', 'schedule__start_time'
-            )[:5],
-            'notifications': client.notifications.filter(sent=True).order_by('-created_at')[:5],
+            'notifications': Notification.objects.filter(
+                models.Q(is_global=True) | models.Q(recipient_client=client),
+                sent=True
+            ).order_by('-created_at')[:5],
+            'active_promotions': active_promotions,
         }
         return render(request, 'core/dashboard_client.html', context)
 

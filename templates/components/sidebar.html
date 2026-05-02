@@ -26,6 +26,13 @@
         </a>
         {% endif %}
 
+        {% if request.user.profile.role == 'ADMIN' %}
+        <a href="{% url 'promotion_list' %}" class="nav-item {% if 'promotion' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="fas fa-tags"></i>
+            <span>Promociones</span>
+        </a>
+        {% endif %}
+
         {% if request.user.profile.role == 'ADMIN' or request.user.profile.role == 'RECEPCIONISTA' %}
         <a href="{% url 'payment_list' %}" class="nav-item {% if 'payment' in request.resolver_match.url_name %}active{% endif %}">
             <i class="fas fa-money-bill-wave"></i>

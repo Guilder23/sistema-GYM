@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}Promociones - GYM PRO{% endblock %}
+{% block page_title %}GESTIÓN DE PROMOCIONES{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Promociones Vigentes y Pasadas</h3>
+        <a href="{% url 'promotion_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Nueva Promoción
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Título</th>
+                        <th>Descuento</th>
+                        <th>Vigencia</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for promo in promotions %}
+                    <tr>
+                        <td>
+                            <div style="font-weight: 600;">{{ promo.title }}</div>
+                            <div style="font-size: 11px; color: var(--text-muted);">{{ promo.description|truncatechars:50 }}</div>
+                        </td>
+                        <td>
+                            <span class="badge-status status-active" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+                                {{ promo.discount_percentage }}% OFF
+                            </span>
+                        </td>
+                        <td>
+                            <div style="font-size: 13px;">{{ promo.start_date|date:"d/m/Y" }} - {{ promo.end_date|date:"d/m/Y" }}</div>
+                        </td>
+                        <td>
+                            {% if promo.is_current %}
+                                <span class="badge-status status-active">Activa</span>
+                            {% else %}
+                                <span class="badge-status status-inactive">Inactiva / Vencida</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <form action="{% url 'promotion_delete' promo.id %}" method="POST" style="display: inline;" onsubmit="return confirm('¿Eliminar esta promoción?')">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-secondary btn-sm" style="color: #ef4444;">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 32px;">No hay promociones registradas.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

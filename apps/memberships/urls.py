@@ -9,4 +9,7 @@ urlpatterns = [
     path('pagos/<int:payment_id>/comprobante/', views.payment_receipt, name='payment_receipt'),
     path('asignar/<int:client_id>/', views.membership_for_client, name='membership_for_client'),
     path('por-vencer/', views.expiring_memberships, name='expiring_memberships'),
+    path('promociones/', views.promotion_list, name='promotion_list'),
+    path('promociones/nueva/', views.promotion_create, name='promotion_create'),
+    path('promociones/eliminar/<int:promo_id>/', views.promotion_delete, name='promotion_delete'),
 ]

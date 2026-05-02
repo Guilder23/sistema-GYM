@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}Nueva Promoción - GYM PRO{% endblock %}
+{% block page_title %}CREAR NUEVA PROMOCIÓN{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 700px; margin: 0 auto;">
+    <div class="card-header">
+        <h3 class="card-title">Detalles de la Oferta</h3>
+    </div>
+    <div class="card-body">
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label for="title">Título de la Promoción *</label>
+                <input type="text" id="title" name="title" class="form-control" placeholder="Ej: Especial de Verano" required>
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label for="description">Descripción / Condiciones *</label>
+                <textarea id="description" name="description" class="form-control" rows="3" placeholder="Describe qué incluye la promoción..." required></textarea>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                <div class="form-group">
+                    <label for="discount_percentage">Descuento (%)</label>
+                    <input type="number" id="discount_percentage" name="discount_percentage" class="form-control" min="0" max="100" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Planes Aplicables</label>
+                    <select name="applicable_plans" class="form-control" multiple style="height: 100px;">
+                        {% for plan in plans %}
+                            <option value="{{ plan.id }}">{{ plan.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <p style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Mantén Ctrl presionado para seleccionar varios.</p>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px;">
+                <div class="form-group">
+                    <label for="start_date">Fecha de Inicio *</label>
+                    <input type="date" id="start_date" name="start_date" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="end_date">Fecha de Fin *</label>
+                    <input type="date" id="end_date" name="end_date" class="form-control" required>
+                </div>
+            </div>
+
+            <div class="form-actions" style="display: flex; gap: 12px; justify-content: flex-end;">
+                <a href="{% url 'promotion_list' %}" class="btn btn-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-bullhorn"></i> Publicar y Notificar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

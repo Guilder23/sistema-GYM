@@ -46,6 +46,35 @@
 
 <div class="dashboard-grid">
     <div class="grid-left">
+        {% if active_promotions %}
+        <div class="card" style="margin-bottom: 24px; border: 2px solid #10b981; background: rgba(16, 185, 129, 0.02);">
+            <div class="card-header" style="background: rgba(16, 185, 129, 0.1);">
+                <h3 class="card-title" style="color: #059669;"><i class="fas fa-gift"></i> Promociones Exclusivas</h3>
+            </div>
+            <div class="card-body">
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px;">
+                    {% for promo in active_promotions %}
+                    <div style="padding: 16px; border-radius: 12px; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid var(--border-color);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <span class="badge-status status-active" style="background: #10b981; color: white;">{{ promo.discount_percentage }}% OFF</span>
+                            <span style="font-size: 11px; color: var(--text-muted);">Hasta {{ promo.end_date|date:"d M" }}</span>
+                        </div>
+                        <h5 style="font-size: 15px; font-weight: 700; margin-bottom: 4px; color: var(--text-dark);">{{ promo.title }}</h5>
+                        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">{{ promo.description }}</p>
+                        <div style="font-size: 11px; font-weight: 600; color: #6366f1;">
+                            {% if promo.applicable_plans.exists %}
+                            Aplica para: {% for plan in promo.applicable_plans.all %}{{ plan.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                            {% else %}
+                            Aplica para todos los planes
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
         <div class="card" style="margin-bottom: 24px;">
             <div class="card-header">
                 <h3 class="card-title">Mis Rutinas</h3>

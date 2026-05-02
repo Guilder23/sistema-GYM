@@ -41,6 +41,16 @@
                     </select>
                 </div>
 
+                <div class="form-group">
+                    <label>Aplicar Promoción (opcional)</label>
+                    <select name="promo_id" class="form-control">
+                        <option value="">Ninguna promoción aplicada</option>
+                        {% for promo in active_promotions %}
+                        <option value="{{ promo.id }}">{{ promo.title }} ({{ promo.discount_percentage }}% OFF)</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
                 <div class="info">
                     <div class="info-card">
                         <div class="info-title">Sugerencia</div>
