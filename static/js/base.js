@@ -77,9 +77,13 @@ document.querySelectorAll('.sidebar .nav-item').forEach(item => {
     });
 });
 
-// Auto cerrar alertas después de 5 segundos
-setTimeout(() => {
-    document.querySelectorAll('.alert').forEach(alert => {
-        alert.remove();
-    });
-}, 5000);
+// Auto cerrar alertas individualmente después de 5 segundos
+document.querySelectorAll('.alert').forEach(alert => {
+    setTimeout(() => {
+        alert.style.opacity = '0';
+        alert.style.transform = 'translateY(20px) scale(0.95)';
+        setTimeout(() => {
+            alert.remove();
+        }, 300);
+    }, 5000);
+});
