@@ -5,6 +5,7 @@ from apps.trainers.models import Trainer
 class ExerciseCategory(models.Model):
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True)
+    wger_id = models.IntegerField(null=True, blank=True, unique=True)
 
     def __str__(self):
         return self.name
@@ -14,6 +15,8 @@ class Exercise(models.Model):
     category = models.ForeignKey(ExerciseCategory, on_delete=models.CASCADE, related_name='exercises')
     description = models.TextField(blank=True)
     image = models.ImageField(upload_to='exercises/', blank=True, null=True)
+    wger_id = models.IntegerField(null=True, blank=True, unique=True)
+    wger_image_url = models.URLField(max_length=500, null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -35,6 +38,9 @@ class RoutineExercise(models.Model):
     sets = models.PositiveIntegerField(default=3)
     reps = models.CharField(max_length=50, blank=True)
     rest_time = models.CharField(max_length=50, blank=True, help_text="e.g. 60s")
+    intensity = models.CharField(max_length=50, blank=True, default="Media")
+    weight_kg = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
+    duration_minutes = models.PositiveIntegerField(null=True, blank=True)
     notes = models.CharField(max_length=255, blank=True)
 
     def __str__(self):

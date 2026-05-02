@@ -3,11 +3,12 @@ from .models import ExerciseCategory, Exercise, Routine, RoutineExercise, Routin
 
 @admin.register(ExerciseCategory)
 class ExerciseCategoryAdmin(admin.ModelAdmin):
-    list_display = ('name',)
+    list_display = ('name', 'wger_id')
+    search_fields = ('name',)
 
 @admin.register(Exercise)
 class ExerciseAdmin(admin.ModelAdmin):
-    list_display = ('name', 'category')
+    list_display = ('name', 'category', 'wger_id')
     search_fields = ('name',)
     list_filter = ('category',)
 

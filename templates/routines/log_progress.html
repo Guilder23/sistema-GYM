@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block title %}Registrar Progreso - GYM PRO{% endblock %}
+{% block page_title %}REGISTRAR PROGRESO: {{ routine.name }}{% endblock %}
+
+{% block content %}
+<div class="dashboard-grid">
+    <div class="grid-left">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Historial de Progreso</h3>
+            </div>
+            <div class="card-body" style="padding: 0;">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Peso Corp. (kg)</th>
+                                <th>Notas / Observaciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in progress_history %}
+                            <tr>
+                                <td style="font-weight: 600;">{{ log.date|date:"d/m/Y" }}</td>
+                                <td>{{ log.weight_kg|default:"-" }} kg</td>
+                                <td>{{ log.notes|default:"Sin notas" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="3" style="text-align: center; padding: 48px; color: var(--text-muted);">No hay registros de progreso aún.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid-right">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Nuevo Registro</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label>Tu Peso Actual (kg)</label>
+                        <input type="number" step="0.01" name="weight_kg" class="form-control" placeholder="Ej: 75.5">
+                    </div>
+                    <div class="form-group">
+                        <label>Notas de hoy</label>
+                        <textarea name="notes" class="form-control" rows="4" placeholder="¿Cómo te sentiste hoy? ¿Subiste pesos en los ejercicios?"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
+                        <i class="fas fa-save"></i> Guardar Progreso
+                    </button>
+                    <a href="{% if request.user.profile.role == 'CLIENTE' %}{% url 'my_routines' %}{% else %}{% url 'routine_detail' routine.id %}{% endif %}" class="btn btn-secondary" style="width: 100%; justify-content: center; margin-top: 12px;">
+                        Volver
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

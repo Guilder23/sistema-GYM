@@ -3,9 +3,47 @@ from django.contrib import messages
 from django.db import models
 from apps.clients.models import Client
 from apps.trainers.models import Trainer
-from .models import Routine, Exercise, RoutineExercise
+from .models import Routine, Exercise, RoutineExercise, RoutineProgress
 from apps.core.models import UserProfile
-from apps.core.permissions import get_linked_trainer, get_user_role, role_required
+from apps.core.permissions import get_linked_trainer, get_user_role, role_required, get_linked_client
+
+
+@role_required(UserProfile.ROLE_ADMIN, UserProfile.ROLE_TRAINER, UserProfile.ROLE_CLIENT)
+def log_progress(request, routine_id):
+    routine = get_object_or_404(Routine, id=routine_id)
+    
+    # Solo el cliente dueño de la rutina o admin/entrenador pueden ver/registrar
+    user_role = get_user_role(request.user)
+    if user_role == UserProfile.ROLE_CLIENT:
+        client = get_linked_client(request.user)
+        if routine.client != client:
+            messages.error(request, 'No tienes permiso para registrar progreso en esta rutina.')
+            return redirect('dashboard')
+    
+    if request.method == 'POST':
+        weight_kg = request.POST.get('weight_kg')
+        notes = request.POST.get('notes', '').strip()
+        
+        RoutineProgress.objects.create(
+            client=routine.client,
+            routine=routine,
+            weight_kg=weight_kg if weight_kg else None,
+            notes=notes
+        )
+        messages.success(request, 'Progreso registrado correctamente.')
+        
+        if user_role == UserProfile.ROLE_CLIENT:
+            return redirect('my_routines')
+        return redirect('routine_detail', routine_id=routine.id)
+    
+    # Obtener historial de progreso
+    progress_history = RoutineProgress.objects.filter(routine=routine).order_by('-date')
+    
+    context = {
+        'routine': routine,
+        'progress_history': progress_history,
+    }
+    return render(request, 'routines/log_progress.html', context)
 
 
 @role_required(UserProfile.ROLE_ADMIN, UserProfile.ROLE_TRAINER)
@@ -144,6 +182,9 @@ def routine_detail(request, routine_id):
         sets = request.POST.get('sets', 3)
         reps = request.POST.get('reps', '')
         rest_time = request.POST.get('rest_time', '')
+        intensity = request.POST.get('intensity', 'Media')
+        weight_kg = request.POST.get('weight_kg')
+        duration_minutes = request.POST.get('duration_minutes')
         
         exercise = get_object_or_404(Exercise, id=exercise_id)
         RoutineExercise.objects.create(
@@ -151,7 +192,10 @@ def routine_detail(request, routine_id):
             exercise=exercise,
             sets=sets,
             reps=reps,
-            rest_time=rest_time
+            rest_time=rest_time,
+            intensity=intensity,
+            weight_kg=weight_kg if weight_kg else None,
+            duration_minutes=duration_minutes if duration_minutes else None
         )
         messages.success(request, 'Ejercicio añadido a la rutina.')
         return redirect('routine_detail', routine_id=routine.id)
