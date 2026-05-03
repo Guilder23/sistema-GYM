@@ -110,7 +110,8 @@
     <div class="grid-right">
         <div class="card" style="margin-bottom: 24px;">
             <div class="card-header">
-                <h3 class="card-title">Próximas clases</h3>
+                <h3 class="card-title">Próximas Clases</h3>
+                <a href="{% url 'reservation_list' %}" class="btn btn-secondary btn-sm">Ver todas</a>
             </div>
             <div class="card-body" style="padding: 0;">
                 {% for class in upcoming_classes %}
@@ -155,10 +156,22 @@
             </div>
         </div>
 
+        <div class="card" style="margin-bottom: 24px;">
+            <div class="card-header">
+                <h3 class="card-title">Ventas Realizadas</h3>
+            </div>
+            <div class="card-body">
+                <a href="{% url 'sale_list' %}" class="btn btn-primary" style="width: 100%; justify-content: center;">
+                    <i class="fas fa-receipt"></i> Ver Historial de Ventas
+                </a>
+            </div>
+        </div>
+
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">Membresías por vencer</h3>
             </div>
+
             <div class="card-body">
                 <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 16px;">{{ expiring_memberships_count }} membresías vencen en los próximos 7 días.</p>
                 <a href="{% url 'expiring_memberships' %}" class="btn btn-primary" style="width: 100%; justify-content: center;">Ver detalles</a>
