@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Registro de Asistencia - GYM PRO{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/access/qr_result.css' %}">
+{% endblock %}
+
+{% block page_title %}REGISTRO QR{% endblock %}
+
+{% block content %}
+<div class="qr-result-container">
+    <div class="card qr-result-card">
+        
+        <div class="qr-icon-wrapper">
+            {% if success %}
+                <div class="qr-icon success">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+            {% else %}
+                <div class="qr-icon error">
+                    <i class="fas fa-times-circle"></i>
+                </div>
+            {% endif %}
+        </div>
+
+        <h2 class="qr-title">
+            {% if success %}¡Acceso Concedido!{% else %}Acceso Denegado{% endif %}
+        </h2>
+
+        <p class="qr-message">
+            {{ message }}
+        </p>
+
+        <div class="client-info-mini">
+            <img src="https://ui-avatars.com/api/?name={{ client.full_name }}&background=random" alt="{{ client.full_name }}">
+            <div>
+                <div class="client-name">{{ client.full_name }}</div>
+                <div class="client-ci">{{ client.ci }}</div>
+            </div>
+        </div>
+
+        <a href="{% url 'dashboard' %}" class="btn btn-primary qr-action-btn">
+            Ir al Dashboard
+        </a>
+    </div>
+    
+    <div class="qr-timestamp">
+        {{ now|date:"d/m/Y H:i" }}
+    </div>
+</div>
+{% endblock %}

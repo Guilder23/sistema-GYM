@@ -28,15 +28,52 @@
                 <h3 class="card-title">Resumen de Hoy</h3>
             </div>
             <div class="card-body">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                    <div style="background: var(--bg-body); padding: 16px; border-radius: 12px; text-align: center;">
-                        <span style="display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Entradas</span>
-                        <span style="font-size: 24px; font-weight: 700; color: var(--color-success);">{{ recent_access.count }}</span>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                    <div style="background: rgba(16, 185, 129, 0.1); padding: 16px; border-radius: 12px; text-align: center; border: 1px solid rgba(16, 185, 129, 0.2);">
+                        <span style="display: block; font-size: 11px; color: #10b981; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Total Entradas</span>
+                        <span style="font-size: 28px; font-weight: 800; color: #10b981;">{{ entries_count }}</span>
                     </div>
-                    <div style="background: var(--bg-body); padding: 16px; border-radius: 12px; text-align: center;">
-                        <span style="display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Denegados</span>
-                        <span style="font-size: 24px; font-weight: 700; color: var(--color-danger);">0</span>
+                    <div style="background: rgba(239, 68, 68, 0.1); padding: 16px; border-radius: 12px; text-align: center; border: 1px solid rgba(239, 68, 68, 0.2);">
+                        <span style="display: block; font-size: 11px; color: #ef4444; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Denegados</span>
+                        <span style="font-size: 28px; font-weight: 800; color: #ef4444;">{{ denied_count }}</span>
                     </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div style="display: flex; align-items: center; gap: 10px; background: var(--bg-body); padding: 10px; border-radius: 8px;">
+                        <div style="width: 32px; height: 32px; background: rgba(59, 130, 246, 0.1); color: #3b82f6; border-radius: 6px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-qrcode"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 10px; color: var(--text-muted);">Por QR</div>
+                            <div style="font-weight: 700;">{{ qr_count }}</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px; background: var(--bg-body); padding: 10px; border-radius: 8px;">
+                        <div style="width: 32px; height: 32px; background: rgba(139, 92, 246, 0.1); color: #8b5cf6; border-radius: 6px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-keyboard"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 10px; color: var(--text-muted);">Manual</div>
+                            <div style="font-weight: 700;">{{ manual_count }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top: 24px; text-align: center;">
+            <div class="card-header">
+                <h3 class="card-title">QR de Asistencia</h3>
+            </div>
+            <div class="card-body">
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
+                    Los clientes pueden escanear este código para registrar su entrada desde su celular.
+                </p>
+                <div style="background: white; padding: 16px; border-radius: 12px; display: inline-block;">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={{ checkin_url|urlencode }}" alt="QR de Asistencia" style="width: 200px; height: 200px;">
+                </div>
+                <div style="margin-top: 12px; font-size: 12px; color: var(--color-primary); font-weight: 600;">
+                    {{ checkin_url }}
                 </div>
             </div>
         </div>
@@ -54,6 +91,7 @@
                         <thead>
                             <tr>
                                 <th>Cliente</th>
+                                <th style="text-align: center;">Método</th>
                                 <th>Hora</th>
                                 <th>Estado</th>
                                 <th>Mensaje</th>
@@ -65,8 +103,20 @@
                                 <td>
                                     <div style="display: flex; align-items: center; gap: 10px;">
                                         <img src="https://ui-avatars.com/api/?name={{ access.client.full_name }}&background=random" style="width: 32px; height: 32px; border-radius: 8px;">
-                                        <span>{{ access.client.full_name }}</span>
+                                        <div>
+                                            <div style="font-weight: 600;">{{ access.client.full_name }}</div>
+                                            <div style="font-size: 11px; color: var(--text-muted);">{{ access.client.ci }}</div>
+                                        </div>
                                     </div>
+                                </td>
+                                <td style="text-align: center;">
+                                    {% if access.method == 'QR' %}
+                                    <span title="Acceso por QR" style="color: #3b82f6; font-size: 16px;"><i class="fas fa-qrcode"></i></span>
+                                    {% elif access.method == 'CODIGO' %}
+                                    <span title="Acceso Manual" style="color: #8b5cf6; font-size: 16px;"><i class="fas fa-keyboard"></i></span>
+                                    {% else %}
+                                    <span title="{{ access.get_method_display }}" style="color: var(--text-muted); font-size: 16px;"><i class="fas fa-fingerprint"></i></span>
+                                    {% endif %}
                                 </td>
                                 <td>{{ access.timestamp|date:"H:i:s" }}</td>
                                 <td>

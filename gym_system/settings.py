@@ -4,8 +4,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-gymsystem-2026-secret'
 DEBUG = True
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
-
+# ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['*']
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.ngrok-free.app'
+]
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
