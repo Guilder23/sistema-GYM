@@ -257,3 +257,22 @@ def sale_list(request):
     sales = Sale.objects.all().order_by('-date')
     context = {'sales': sales}
     return render(request, 'inventory/sale_list.html', context)
+
+
+@role_required(UserProfile.ROLE_ADMIN, UserProfile.ROLE_RECEPTION, UserProfile.ROLE_TRAINER, UserProfile.ROLE_CLIENT)
+def sale_detail(request, sale_id):
+    sale = get_object_or_404(Sale, id=sale_id)
+    
+    # Verificar permisos: Admin/Recep pueden ver todas.
+    # Otros roles solo pueden ver las suyas.
+    role = get_user_role(request.user)
+    if role not in [UserProfile.ROLE_ADMIN, UserProfile.ROLE_RECEPTION]:
+        if sale.client and get_linked_client(request.user) != sale.client:
+            if sale.user != request.user:
+                messages.error(request, 'No tienes permiso para ver esta venta.')
+                return redirect('dashboard')
+        elif not sale.client and sale.user != request.user:
+            messages.error(request, 'No tienes permiso para ver esta venta.')
+            return redirect('dashboard')
+
+    return render(request, 'inventory/sale_detail.html', {'sale': sale})
