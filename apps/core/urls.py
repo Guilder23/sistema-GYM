@@ -14,4 +14,5 @@ urlpatterns = [
     path('mis-rutinas/', views.my_routines, name='my_routines'),
     path('mis-reservas/', views.my_reservations, name='my_reservations'),
     path('configuracion/', views.system_settings, name='system_settings'),
+    path('chatbot/chat/', views.chatbot_chat, name='chatbot_chat'),
 ]

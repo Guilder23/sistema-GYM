@@ -1,0 +1,64 @@
+<div class="chatbot-launcher" id="chatbotLauncher">
+    <i class="fas fa-comment-dots"></i>
+</div>
+
+<div class="chatbot-window" id="chatbotWindow">
+    <div class="chatbot-header">
+        <div class="chatbot-header-info">
+            <div class="chatbot-avatar">
+                <i class="fas fa-robot"></i>
+            </div>
+            <div class="chatbot-header-text">
+                <h4>Asistente GYM PRO</h4>
+                <div class="status-indicator">
+                    <span class="status-dot"></span>
+                    <span>En línea</span>
+                </div>
+            </div>
+        </div>
+        <div class="chatbot-close" id="chatbotClose">
+            <i class="fas fa-times"></i>
+        </div>
+    </div>
+    <div class="chatbot-messages" id="chatbotMessages">
+        <div class="message bot">
+            ¡Hola! Soy tu asistente de GYM PRO. 
+            <br><br>
+            • Usa <strong>@gym</strong> para preguntas sobre nuestros planes, precios o productos.
+            <br>
+            • Escribe normal para consejos de entrenamiento y nutrición.
+            
+            <div class="chatbot-suggestions">
+                <button class="suggestion-btn" data-query="@gym ¿Qué planes de membresía tienen?">
+                    <i class="fas fa-id-card"></i> Ver Planes
+                </button>
+                <button class="suggestion-btn" data-query="@gym ¿Qué productos venden?">
+                    <i class="fas fa-shopping-basket"></i> Productos
+                </button>
+                <button class="suggestion-btn" data-query="Dame una rutina para ganar masa muscular">
+                    <i class="fas fa-dumbbell"></i> Rutina Fitness
+                </button>
+            </div>
+        </div>
+        <div class="typing-indicator" id="typingIndicator">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+        </div>
+    </div>
+    <div class="chatbot-input-area">
+        <div class="chatbot-mode-toggle" id="chatbotModeToggle" title="Cambiar modo: General / Gimnasio">
+            <div class="mode-icon general active" data-mode="general">
+                <i class="fas fa-globe"></i>
+            </div>
+            <div class="mode-icon gym" data-mode="gym">
+                <i class="fas fa-dumbbell"></i>
+            </div>
+            <span class="mode-slider"></span>
+        </div>
+        <input type="text" id="chatbotInput" placeholder="Escribe un mensaje..." autocomplete="off">
+        <div class="chatbot-send" id="chatbotSend">
+            <i class="fas fa-paper-plane"></i>
+        </div>
+    </div>
+</div>

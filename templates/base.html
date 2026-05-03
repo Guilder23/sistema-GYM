@@ -15,9 +15,12 @@
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/core/chatbot.css' %}">
     {% block extra_css %}{% endblock %}
 </head>
 <body>
+    <!-- Marked.js for Chatbot Markdown --> 
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <div class="app-container">
         {% include 'components/sidebar.html' %}
         <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -44,7 +47,11 @@
         </div>
     </div>
 
+    <!-- Chatbot Component -->
+    {% include 'components/chatbot.html' %}
+
     <script src="{% static 'js/base.js' %}"></script>
+    <script src="{% static 'js/core/chatbot.js' %}"></script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

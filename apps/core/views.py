@@ -7,13 +7,17 @@ from django.db import models
 from django.db import models
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
+from django.conf import settings
+from django.http import JsonResponse
+import json
+import requests
 
 from apps.access.models import AccessRecord
 from apps.clients.models import Client
 from apps.inventory.models import Product
-from apps.memberships.models import Membership, Payment, Promotion
+from apps.memberships.models import Membership, Payment, Promotion, MembershipPlan
 from apps.notifications.models import Notification
-from apps.reservations.models import ClassSchedule, Reservation
+from apps.reservations.models import ClassSchedule, Reservation, ClassType
 from apps.routines.models import Routine
 from apps.trainers.models import Trainer
 
@@ -424,3 +428,102 @@ def my_reservations(request):
         'client': client,
         'reservations': reservations,
     })
+
+
+def chatbot_chat(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'No autenticado'}, status=401)
+
+    try:
+        data = json.loads(request.body)
+        user_message = data.get('message', '').strip()
+        
+        if not user_message:
+            return JsonResponse({'error': 'Mensaje vacío'}, status=400)
+
+        # Detectar si el usuario quiere información específica del gimnasio
+        is_gym_query = user_message.lower().startswith('@gym')
+        if is_gym_query:
+            # Eliminar el tag del mensaje para procesar la pregunta limpia
+            user_message = user_message[4:].strip()
+
+        # 1. Obtener datos reales de la base de datos (solo si se usa @gym o como contexto secundario)
+        plans_info = ""
+        products_info = ""
+        classes_info = ""
+        promos_info = ""
+
+        if is_gym_query:
+            # Membresías
+            plans = MembershipPlan.objects.filter(active=True)
+            plans_info = "\n".join([f"- {p.name}: {p.duration_days} días, Bs{p.price}. {p.description}" for p in plans])
+            
+            # Productos del inventario
+            products = Product.objects.filter(stock__gt=0)[:10]
+            products_info = "\n".join([f"- {p.name}: Bs{p.price} (Stock: {p.stock})" for p in products])
+            
+            # Clases/Disciplinas
+            classes = ClassType.objects.all()
+            classes_info = "\n".join([f"- {c.name}: {c.description}" for c in classes])
+
+            # Promociones actuales
+            today = timezone.localdate()
+            promos = Promotion.objects.filter(is_active=True, start_date__lte=today, end_date__gte=today)
+            promos_info = "\n".join([f"- {pr.title}: {pr.discount_percentage}% desc. {pr.description}" for pr in promos])
+
+        # Contexto del sistema diferenciado
+        if is_gym_query:
+            system_prompt = (
+                "Eres el asistente oficial de GYM PRO. Tu tarea es responder preguntas ESPECÍFICAS sobre el gimnasio usando los datos proporcionados.\n\n"
+                "DATOS DEL GIMNASIO:\n"
+                "PLANES:\n" + (plans_info or "No hay planes.") + "\n"
+                "PRODUCTOS:\n" + (products_info or "No hay productos.") + "\n"
+                "CLASES:\n" + (classes_info or "No hay clases.") + "\n"
+                "PROMOS:\n" + (promos_info or "No hay promos.") + "\n\n"
+                "Responde de forma clara y profesional usando estos datos. Si el usuario pregunta algo que no está aquí, dile que consulte en recepción."
+            )
+        else:
+            system_prompt = (
+                "Eres un experto en fitness, salud y nutrición. Tu objetivo es ayudar a los usuarios con consejos generales, rutinas de ejercicio y dietas.\n\n"
+                "IMPORTANTE: Si el usuario pregunta algo sobre precios, planes o servicios específicos de ESTE gimnasio, "
+                "indícale que debe usar el comando '@gym' al inicio de su mensaje (ejemplo: '@gym ¿qué planes tienen?').\n\n"
+                "Responde de forma motivadora, profesional y en español. Usa Markdown para organizar la información."
+            )
+
+        # Llamada a la API de Groq
+        response = requests.post(
+            "https://api.groq.com/openai/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {settings.GROQ_API_KEY}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "model": "llama-3.1-8b-instant",
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_message}
+                ],
+                "temperature": 0.7,
+                "max_tokens": 1024
+            },
+            timeout=10
+        )
+
+        if response.status_code == 200:
+            result = response.json()
+            bot_response = result['choices'][0]['message']['content']
+            return JsonResponse({'response': bot_response})
+        else:
+            error_data = response.json() if response.headers.get('content-type') == 'application/json' else {'message': response.text}
+            return JsonResponse({
+                'error': 'Error en el servicio de IA',
+                'details': error_data if settings.DEBUG else None
+            }, status=response.status_code)
+
+    except Exception as e:
+        return JsonResponse({
+            'error': str(e),
+        }, status=500)
